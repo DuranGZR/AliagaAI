@@ -1,25 +1,20 @@
-"""
-AliağaAI Database Models v3
-15+ Ayrı Tablo - Kategori Bazlı Organizasyon
-AI için optimize edilmiş yapı
-"""
-
-from sqlalchemy import Column, Integer, String, Date, DateTime, Text, Float, Boolean, JSON
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy import Column, Integer, String, Date, DateTime, Text, Float, Boolean
+from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.sql import func
+from pgvector.sqlalchemy import Vector
+
 from app.database import Base
+from app.config import get_settings
 
+settings = get_settings()
+EMBEDDING_DIM = settings.embedding_dimension
 
-# ============================================================================
-# ŞEHİR BİLGİSİ (7 Tablo)
-# ============================================================================
 
 class History(Base):
-    """Tarihçe - Aliağa'nın tarihi"""
     __tablename__ = "history"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    period = Column(String(100))  # Antik Çağ, Osmanlı, Cumhuriyet
+    period = Column(String(100))
     title = Column(String(255))
     content = Column(Text)
     source_url = Column(String(500))
@@ -27,24 +22,22 @@ class History(Base):
 
 
 class Geography(Base):
-    """Coğrafya - İklim, nüfus, konum"""
     __tablename__ = "geography"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    topic = Column(String(100))  # iklim, nufus, konum
+    topic = Column(String(100))
     title = Column(String(255))
     content = Column(Text)
-    statistics = Column(JSONB)  # {"nufus": 100000, "alan_km2": 300}
+    statistics = Column(JSONB)
     source_url = Column(String(500))
     created_at = Column(DateTime, server_default=func.now())
 
 
 class Economy(Base):
-    """Ekonomi - Sanayi, tarım, ticaret"""
     __tablename__ = "economy"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    sector = Column(String(100))  # sanayi, tarim, ticaret
+    sector = Column(String(100))
     title = Column(String(255))
     content = Column(Text)
     source_url = Column(String(500))
@@ -52,11 +45,10 @@ class Economy(Base):
 
 
 class Culture(Base):
-    """Kültür - El sanatı, festival, gelenek"""
     __tablename__ = "culture"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    type = Column(String(100))  # el_sanati, festival, gelenek
+    type = Column(String(100))
     title = Column(String(255))
     content = Column(Text)
     source_url = Column(String(500))
@@ -64,9 +56,8 @@ class Culture(Base):
 
 
 class EducationInfo(Base):
-    """Eğitim Bilgisi - Genel eğitim durumu"""
     __tablename__ = "education_info"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255))
     content = Column(Text)
@@ -76,9 +67,8 @@ class EducationInfo(Base):
 
 
 class HealthInfo(Base):
-    """Sağlık Bilgisi - Genel sağlık durumu"""
     __tablename__ = "health_info"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255))
     content = Column(Text)
@@ -88,44 +78,37 @@ class HealthInfo(Base):
 
 
 class Transport(Base):
-    """Ulaşım - Nasıl gelinir"""
     __tablename__ = "transport"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    type = Column(String(100))  # otobus, tren, deniz
+    type = Column(String(100))
     title = Column(String(255))
     content = Column(Text)
-    how_to_get = Column(Text)  # Aliağa'ya nasıl gelinir
+    how_to_get = Column(Text)
     source_url = Column(String(500))
     created_at = Column(DateTime, server_default=func.now())
 
 
-# ============================================================================
-# TURİZM (4 Tablo)
-# ============================================================================
-
 class AntiqueCity(Base):
-    """Antik Kentler - Kyme, Myrina, Gryneion"""
     __tablename__ = "antique_cities"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
-    period = Column(String(100))  # MÖ 11. yy
+    period = Column(String(100))
     location = Column(String(255))
     description = Column(Text)
-    visit_info = Column(Text)  # Ziyaret bilgileri
+    visit_info = Column(Text)
     maps_link = Column(String(500))
     source_url = Column(String(500))
     created_at = Column(DateTime, server_default=func.now())
 
 
 class TourismSpot(Base):
-    """Gezilecek Yerler"""
     __tablename__ = "tourism_spots"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
-    category = Column(String(100))  # plaj, doga, tarihi
+    category = Column(String(100))
     description = Column(Text)
     address = Column(String(500))
     maps_link = Column(String(500))
@@ -134,25 +117,23 @@ class TourismSpot(Base):
 
 
 class Gastronomy(Base):
-    """Yöresel Lezzetler"""
     __tablename__ = "gastronomy"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
-    type = Column(String(50))  # yemek, tatli, icecek
+    type = Column(String(50))
     description = Column(Text)
-    origin = Column(String(100))  # Şakran, Helvacı
+    origin = Column(String(100))
     source_url = Column(String(500))
     created_at = Column(DateTime, server_default=func.now())
 
 
 class HikingRoute(Base):
-    """Gezi Rotaları"""
     __tablename__ = "hiking_routes"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
-    type = Column(String(50))  # bisiklet, yuruyus, araba
+    type = Column(String(50))
     description = Column(Text)
     distance_km = Column(Float)
     difficulty = Column(String(50))
@@ -160,14 +141,9 @@ class HikingRoute(Base):
     created_at = Column(DateTime, server_default=func.now())
 
 
-# ============================================================================
-# KURUMLAR (6 Tablo)
-# ============================================================================
-
 class EmergencyPhone(Base):
-    """Acil Telefonlar"""
     __tablename__ = "emergency_phones"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     phone = Column(String(20))
@@ -176,9 +152,8 @@ class EmergencyPhone(Base):
 
 
 class PublicInstitution(Base):
-    """Kamu Kuruluşları"""
     __tablename__ = "public_institutions"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     address = Column(String(500))
@@ -193,12 +168,11 @@ class PublicInstitution(Base):
 
 
 class HealthFacility(Base):
-    """Sağlık Kuruluşları"""
     __tablename__ = "health_facilities"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
-    type = Column(String(50))  # hastane, saglik_ocagi, eczane
+    type = Column(String(50))
     address = Column(String(500))
     phone = Column(String(100))
     emergency = Column(Boolean, default=False)
@@ -208,12 +182,11 @@ class HealthFacility(Base):
 
 
 class School(Base):
-    """Okullar"""
     __tablename__ = "schools"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
-    level = Column(String(50))  # ilkokul, ortaokul, lise
+    level = Column(String(50))
     address = Column(String(500))
     phone = Column(String(100))
     website = Column(String(500))
@@ -223,9 +196,8 @@ class School(Base):
 
 
 class Hotel(Base):
-    """Oteller"""
     __tablename__ = "hotels"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     stars = Column(Integer)
@@ -238,28 +210,22 @@ class Hotel(Base):
 
 
 class Library(Base):
-    """Kütüphaneler"""
     __tablename__ = "libraries"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     address = Column(String(500))
     phone = Column(String(100))
     working_hours = Column(String(200))
-    facilities = Column(ARRAY(String(100)))  # wifi, calisma_salonu
+    facilities = Column(ARRAY(String(100)))
     maps_link = Column(String(500))
     source_url = Column(String(500))
     created_at = Column(DateTime, server_default=func.now())
 
 
-# ============================================================================
-# YEREL (4 Tablo)
-# ============================================================================
-
 class Neighborhood(Base):
-    """Mahalleler"""
     __tablename__ = "neighborhoods"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     muhtar_name = Column(String(255))
@@ -271,25 +237,23 @@ class Neighborhood(Base):
 
 
 class MunicipalService(Base):
-    """Belediye Hizmetleri"""
     __tablename__ = "municipal_services"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
-    category = Column(String(50))  # sosyal, cevre, kultur, spor
+    category = Column(String(50))
     description = Column(Text)
     address = Column(String(500))
     phone = Column(String(50))
     working_hours = Column(String(200))
-    how_to_apply = Column(Text)  # Başvuru bilgisi
+    how_to_apply = Column(Text)
     source_url = Column(String(500))
     created_at = Column(DateTime, server_default=func.now())
 
 
 class PharmacyDuty(Base):
-    """Nöbetçi Eczane"""
     __tablename__ = "pharmacy_duties"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     address = Column(String(500))
@@ -300,65 +264,61 @@ class PharmacyDuty(Base):
 
 
 class Place(Base):
-    """Mekanlar (Manuel Giriş)"""
     __tablename__ = "places"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
-    category = Column(String(50))  # kafe, restoran, market
+    category = Column(String(50))
+    description = Column(Text)
     address = Column(String(500))
     phone = Column(String(50))
     maps_link = Column(String(500))
     rating = Column(Float)
-    tags = Column(ARRAY(String(50)))  # sessiz, wifi, otopark
-    source = Column(String(20))  # manual, google
+    tags = Column(ARRAY(String(50)))
+    features = Column(JSONB)
+    source = Column(String(20), default="manual")
+    is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-
-# ============================================================================
-# DİNAMİK VERİLER (Sürekli Güncellenen)
-# ============================================================================
 
 class News(Base):
-    """Haberler - Günlük/Haftalık güncelleme"""
     __tablename__ = "news"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(500), nullable=False)
-    summary = Column(Text)  # İlk paragraf
+    summary = Column(Text)
     content = Column(Text)
     image_url = Column(String(500))
     published_date = Column(Date, index=True)
-    category = Column(String(50))  # genel, spor, kultur, altyapi
-    source_url = Column(String(500), unique=True)  # Duplicate önleme
+    category = Column(String(50))
+    source_url = Column(String(500), unique=True)
     created_at = Column(DateTime, server_default=func.now())
 
 
 class Announcement(Base):
-    """Duyurular - İhale, resmi ilan"""
     __tablename__ = "announcements"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(500), nullable=False)
     content = Column(Text)
-    type = Column(String(50))  # ihale, ilan, duyuru
+    type = Column(String(50))
     published_date = Column(Date, index=True)
-    deadline = Column(Date)  # Son başvuru tarihi (ihaleler için)
+    deadline = Column(Date)
     source_url = Column(String(500), unique=True)
     created_at = Column(DateTime, server_default=func.now())
 
 
 class Event(Base):
-    """Etkinlikler - Konser, tiyatro, panel"""
     __tablename__ = "events"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(500), nullable=False)
     description = Column(Text)
     event_date = Column(Date, index=True)
-    event_time = Column(String(20))  # "20:00"
+    event_time = Column(String(20))
     location = Column(String(255))
-    category = Column(String(50))  # konser, tiyatro, panel, festival
+    category = Column(String(50))
     image_url = Column(String(500))
     is_free = Column(Boolean, default=True)
     source_url = Column(String(500), unique=True)
@@ -366,14 +326,13 @@ class Event(Base):
 
 
 class Project(Base):
-    """Belediye Projeleri"""
     __tablename__ = "projects"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(500), nullable=False)
     description = Column(Text)
-    status = Column(String(50))  # tamamlanan, devam_eden, planlanan
-    category = Column(String(50))  # altyapi, park, sosyal
+    status = Column(String(50))
+    category = Column(String(50))
     start_date = Column(Date)
     end_date = Column(Date)
     budget = Column(String(100))
@@ -381,3 +340,16 @@ class Project(Base):
     source_url = Column(String(500), unique=True)
     created_at = Column(DateTime, server_default=func.now())
 
+
+# RAG: vektör araması için chunk tablosu
+class DocumentChunk(Base):
+    __tablename__ = "document_chunks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    source_table = Column(String(100), nullable=False, index=True)
+    source_id = Column(Integer, nullable=False)
+    chunk_index = Column(Integer, default=0)
+    content = Column(Text, nullable=False)
+    embedding = Column(Vector(EMBEDDING_DIM))
+    metadata_ = Column("metadata", JSONB, default={})
+    created_at = Column(DateTime, server_default=func.now())
