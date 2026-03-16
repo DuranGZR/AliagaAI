@@ -1,0 +1,10 @@
+from app.scrapers import DynamicScraper
+s = DynamicScraper()
+r = s.run_all()
+print()
+print("SONUC:")
+print(f"NEWS: {r['news']}")
+print(f"ANNOUNCEMENTS: {r['announcements']}")
+print(f"EVENTS: {r['events']}")
+print(f"PROJECTS: {r['projects']}")
+print(f"TOTAL: {sum(r.values())}")
