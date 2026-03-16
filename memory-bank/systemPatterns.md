@@ -1,152 +1,50 @@
-# AliağaAI - Sistem Mimarisi
+# AliağaAI - Sistem Mimarisi ve Tasarım Şablonları
 
-## 🏗️ Genel Mimari
+## 🏗️ Genel Sistem Mimarisi
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Frontend  │────▶│   Backend   │────▶│  Database   │
-│  (Next.js)  │◀────│  (FastAPI)  │◀────│ (PostgreSQL)│
-└─────────────┘     └──────┬──────┘     └─────────────┘
-                           │
-                    ┌──────▼──────┐
-                    │   AI API    │
-                    │ (Groq/GPT)  │
-                    └─────────────┘
-```
+Sistem, bir mobil uygulama, bir backend servisi ve hibrit bir veri erişim katmanından oluşur. Sorgular, "Query Router" aracılığıyla uygun katmana yönlendirilir.
 
-## 🔍 Arama Akışı
+**Veri Akış Şeması:**
+1. **Mobil Uygulama (React Native):** Kullanıcı sorguyu gönderir (HTTPS / REST).
+2. **API Gateway / Backend (FastAPI):** Sorguyu karşılar ve iş mantığına iletir.
+3. **Query Router:** Sorguyu analiz edip "Yapılandırılmış Arama (SQL)" mı yoksa "Metin Tabanlı Arama (RAG)" mı yapılacağına karar verir.
+4. **Veri Getirme:**
+   *   **Path A (Structured Search):** Doğrudan PostgreSQL üzerinden klasik veritabanı sorgusu.
+   *   **Path B (RAG Pipeline):** Sorgu embedding'e dönüştürülüp `pgvector` üzerinden benzer vektörler taranır.
+5. **LLM Service:** Bulunan veriler bağlam olarak LLM'e (Yapay Zeka) sunulur. LLM sadece bu verileri yorumlar ve cevap üretir ("AI karar vermez, AI açıklar").
+6. **Response Formatter:** LLM cevabını ve referans verilerini (harita linki, mekan detayları) derler.
+7. **Client Response:** Kullanıcıya dönen JSON yanıt.
 
-```
-Kullanıcı Sorusu: "aliağada sessiz kafe var mı"
-         │
-         ▼
-┌─────────────────────────────────────────────────────┐
-│ 1. KEYWORD EXTRACTION                               │
-│    Input: "aliağada sessiz kafe var mı"             │
-│    Output: ["sessiz", "kafe"]                       │
-└─────────────────────────────────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────────────────────────┐
-│ 2. CATEGORY MATCHING                                │
-│    "kafe" → category: "kafe"                        │
-│    "sessiz" → tag: "sessiz" (V2'de)                 │
-└─────────────────────────────────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────────────────────────┐
-│ 3. DATABASE QUERY                                   │
-│    SELECT * FROM places                             │
-│    WHERE category = 'kafe'                          │
-│    ORDER BY rating DESC                             │
-│    LIMIT 3                                          │
-└─────────────────────────────────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────────────────────────┐
-│ 4. AI SUMMARY                                       │
-│    Input: 3 mekan verisi                            │
-│    Output: "Aliağa'da en yüksek puanlı kafe X..."   │
-└─────────────────────────────────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────────────────────────┐
-│ 5. RESPONSE                                         │
-│    - AI özet metni                                  │
-│    - 3 mekan kartı (isim, puan, link)               │
-└─────────────────────────────────────────────────────┘
-```
+## 🔀 Query Router (Sorgu Yönlendirici) Şablonu
 
-## 📦 Bileşenler
+En kritik bileşen, maliyeti düşürmek ve doğruluğu artırmak için çalışan Query Router'dır. Her sorgu LLM'e doğrudan gitmez, arama stratejisi belirlenir.
 
-### 1. Scheduler Service (APScheduler)
-Düzenli veri güncellemelerini yönetir.
-```python
-# app/scheduler.py
-def init_scheduler():
-    # Günlük: Nöbetçi Eczane (00:05)
-    # Günlük: Haberler (08:00, 18:00)
-    # Haftalık: Projeler (Pzt 06:00)
-    # Aylık: Statik Veriler (Ayın 1'i)
-```
+*   **SQL (Structured Search):** Doğrudan eşleşen ve yapılandırılmış verilere ihtiyaç duyan sorgular (Örn: "Şu an açık nöbetçi eczane hangisi?").
+*   **SQL + AI:** Yarı yapılandırılmış verilerin veya filtrelerin, zenginleştirilmiş yanıtlarla sunulması (Örn: "Restoran önerisi").
+*   **RAG (Retrieval-Augmented Generation):** Bağlam gerektiren, metinlerin içinde anlamsal arama yapılması gereken durumlar (Örn: "Belediye duyuruları neler?", "Hafta sonu etkinlikleri").
 
-### 2. Scraper Service
-```python
-# app/scrapers/ dynamic.py & comprehensive.py
-class DynamicScraper:
-    def scrape_news() -> int
-    def scrape_announcements() -> int
-    def scrape_projects() -> int
+## 🧠 RAG (Retrieval-Augmented Generation) Mimarisi
 
-class ComprehensiveScraper:
-    def scrape_all_static() -> int
-    def scrape_pharmacy() -> int
-```
+RAG süreci iki ana aşamadan oluşur:
 
-### 3. AI Service (Planlanan)
-```python
-class AIService:
-    def summarize(data: List[Dict], query: str) -> str:
-        # Groq API entegrasyonu
-        # RAG Mimarisi
-```
+### 1. Hazırlık Süreci (Data Ingestion)
+1.  **Ham Metin Verisi:** Haberler, duyurular vs. toplanır.
+2.  **Ön İşleme:** Gereksiz HTML tag'leri, linkler vb. temizlenir.
+3.  **Chunking:** Metin anlamlı boyutlara bölünür.
+4.  **Embedding Modeli:** Parçalar vektörlere dönüştürülür.
+5.  **Vektör Deposu:** PostgreSQL üzerinde `pgvector` eklentisiyle tablolanır.
 
-## 🔄 Veri Akışları
+### 2. Sorgu Süreci (Query & Response)
+1.  **Kullanıcı Sorusu:** RAG'a düşen soru alınır.
+2.  **Sorgu Embedding'i:** Kullanıcı sorusu aynı modelle vektöre dönüştürülür.
+3.  **Benzer Chunkların Getirilmesi:** Vector Search yapılarak en alakalı K adet chunk veritabanından çekilir.
+4.  **Bağlam Oluşturma:** Sorulan soru ve alakalı chunk'lar bir "prompt" içerisinde birleştirilir.
+5.  **LLM (Yapay Zeka):** Sadece verilen bağlama dayanarak yanıt üretmesi istenir (Prompt Engineering ile halüsinasyon engellenir).
+6.  **Yanıt:** Mobil uygulamaya sunulur.
 
-### Scraping (Otomatik)
-```
-APScheduler (Background)
-    │
-    ├── Her gün 00:05 ──▶ Eczane Scraper ──▶ DB (Yeni nöbetçi)
-    │
-    ├── Her gün 08:00 ──▶ Haber Scraper ──▶ DB (Yeni haberler)
-    │
-    └── Her ayın 1'i ───▶ Statik Scraper ──▶ DB (Tam güncelleme)
-```
+## 🛡️ AI'ın Sınırları ("Yalnızca Açıklama" Katmanı)
 
-### Admin Tetikleme
-```
-POST /api/admin/scrape/news
-    │
-    ▼
-FastAPI Route ──▶ Scraper Service ──▶ Database
-    │
-    ▼
-Response: "20 news scraped"
-```
+Sistemde LLM'in tek rolü: Gelen ham, doğru veriyi insan diline çevirmek ve özetlemektir.
 
-## 🐳 Docker Mimarisi
-
-```yaml
-services:
-  backend:
-    image: aliagai-backend
-    ports: 8000:8000
-    env: .env
-    restart: unless-stopped
-    healthcheck: /health
-```
-
-## 🎨 Frontend Yapısı
-
-```
-src/
-├── components/
-│   ├── SearchInput.tsx    # Ana arama kutusu
-│   ├── PlaceCard.tsx      # Mekan kartı
-│   ├── AISummary.tsx      # AI özet balonu
-│   └── Layout.tsx
-├── pages/
-│   ├── index.tsx          # Ana sayfa
-│   └── api/
-│       └── search.ts      # API route
-└── styles/
-    └── globals.css
-```
-
-## 🔐 Güvenlik
-
-1. **Rate Limiting:** 60 istek/dakika
-2. **Input Sanitization:** SQL injection koruması
-3. **CORS:** Sadece frontend domain
-4. **API Key:** AI servisi için .env'de
+*   **Yasaklananlar:** Sistem dışında bilgi üretmesi, internette güncel arama yapıp onu cevaplaması (kendi bilgisiyle cevap vermesi yasaktır).
+*   **İzin Verilenler:** "Bulunan mekanların adresini, neden listeye alındığını (açık olduğu için vb.) ve özelliklerini kullanıcıya derli toplu açıklamak."

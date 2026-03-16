@@ -1,59 +1,30 @@
 # AliağaAI - Proje Özeti
 
-## 🎯 Proje Adı
-**AliağaAI** – Aliağa'nın Yerel Yapay Zeka Rehberi
+## 🎯 Proje Adı ve Tanımı
+**AliağaAI**, Aliağa ilçesine ait yerel verileri kullanarak kullanıcıların sordukları sorulara hızlı ve güvenilir cevaplar veren **hibrit arama tabanlı bir mobil şehir rehberidir.**
 
-## 📝 Problem
-Bugün Aliağa'da bir şey aradığında:
-- Google sonuçları karışık ve reklam dolu
-- Güncel değil
-- İlçeye özel mantık yok
-- Gerçek kullanıcı deneyimi yok
+Bu proje, kullanıcıların "Şu an açık nöbetçi eczane hangisi?", "Aliağa’da sakin bir restoran öner", "Bu hafta sonu etkinlik var mı?" gibi spesifik ve yerel bilgi arayışlarında yaşadığı erişim problemlerini çözmek amacıyla geliştirilmiştir. Genel arama motorlarının (Google vb.) karmaşıklığından ve reklamlarından arındırılmış, bağlama uygun ve doğru cevaplar üretir.
 
-Kullanıcılar şunu arıyor:
-- "Aliağa'da sessiz kafe nerede?"
-- "Şu an açık eczane hangisi?"
-- "Aileyle gidilecek balık restoranı nerede?"
+## ✅ Çözüm Yaklaşımı
+*   **Aliağa’ya Özel Yerel Veri Tabanı:** Yalnızca ilçe sınırları içerisindeki veriler kullanılır.
+*   **Kullanıcı Sorgularını Anlayan Arama Sistemi:** Doğal dildeki soruları anlama yeteneği.
+*   **Hibrit Arama Mimarisi (SQL + RAG):** Sorunun türüne göre yapılandırılmış (SQL) veya metin tabanlı (RAG) arama.
+*   **AI Karar Vermez, AI Açıklar:** Sistem veriyi bulur, yapay zeka sadece sonucu kullanıcıya anlaşılır şekilde anlatır. (Halüsinasyon riskini en aza indiren yaklaşım).
+*   **Mobil Uygulama Odaklılık:** Kullanıcıların bilgiye her an hızlıca erişebilmesi için React Native tabanlı mobil uygulama.
 
-## ✅ Çözüm
-AliağaAI, sadece Aliağa'ya odaklanan, yerel verilerle çalışan, kullanıcı sorusunu anlayıp net cevap veren bir yapay zeka rehberidir.
+## 📊 Veri Kaynakları ve Yönetimi
+*   **Otomatik Veri (Scraping):** Belediye duyuruları, Nöbetçi eczaneler, Etkinlikler.
+*   **Manuel Veri (Admin Panel):** Restoranlar, Kafeler, Turistik yerler.
+*   **Admin Panel:** Mekân ekleme, veri düzenleme, kategori yönetimi ve içerik güncelleme işlemleri buradan yapılır.
 
-**Fark:** Google gibi ararsın, ama dağınık cevap almazsın.
+## 🛠️ Temel Teknolojiler
+*   **Mobil Uygulama:** React Native (iOS & Android)
+*   **Backend Servisi:** Python FastAPI
+*   **Veritabanı:** PostgreSQL
+*   **Vektör Arama (Vector Search):** pgvector (RAG sistemi için)
 
-## 🔧 Teknik Yaklaşım
-
-### AI Rolü
-- Arama motoru değil
-- Karar mekanizması değil
-- **Anlatıcı ve özetleyici**
-
-Kararı sistem verir. AI insan gibi anlatır.
-→ Hallucination yok, uydurma yok.
-
-### Veri Kaynakları
-| Kaynak | Veri | Yöntem |
-|--------|------|--------|
-| Aliağa Belediyesi | Eczane, kurum, tarih, haber, proje | Scraping (Oto) |
-| Google Maps | Kafe, restoran, market | Manuel giriş |
-
-## 📊 MVP Kapsamı
-- 220+ veri noktası
-- 1 şehir (Aliağa)
-- 1 input alanı
-- 3 sonuç kartı
-- Harita linki
-
-## 💰 Gelir Modeli
-- Esnaf premium profil
-- Öne çıkarma
-- Kampanya gösterimi
-- Veri analizi (ileride)
-
-## 🚀 Büyüme Stratejisi
-Aliağa → Menemen → Foça → Karşıyaka
-Sonra: "İlçemin Google'ı" platformu
-
-## 👤 Geliştirici
-- Bilgisayar Mühendisliği öğrencisi
-- AI bilgisi var
-- Tek kişi çıkarılabilir ürün
+## 🚀 Gelecek Planları (Roadmap)
+*   Konum bazlı öneriler
+*   Harita entegrasyonu
+*   Kullanıcı yorum sistemi
+*   Farklı ilçelere (Menemen, Foça, Karşıyaka vb.) genişleme

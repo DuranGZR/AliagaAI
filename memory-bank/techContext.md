@@ -1,104 +1,31 @@
 # AliağaAI - Teknik Bağlam
 
-## 🛠️ Teknoloji Stack
+Bu doküman, AliağaAI hibrit arama tabanlı mobil şehir rehberinin güncel teknoloji yığınını tanımlar.
 
-### Backend
-- **Framework:** FastAPI (Python)
-- **Database:** PostgreSQL
-- **ORM:** SQLAlchemy / Prisma
-- **AI:** OpenAI API veya Groq (ücretsiz)
+## 📱 Frontend (Mobil Uygulama)
+*   **Framework:** React Native
+*   **Avantajı:** Tek bir kod tabanı (JavaScript/TypeScript) kullanarak hem iOS hem de Android için native benzeri performans sunan uygulamalar geliştirmeyi sağlar.
 
-### Frontend
-- **Framework:** Next.js veya Vite + React
-- **Styling:** Tailwind CSS
-- **UI:** Shadcn/ui
+## ⚙️ Backend (API ve İş Mantığı)
+*   **Dil:** Python
+*   **Framework:** FastAPI
+*   **Avantajı:** Asenkron (async/await) yapısıyla çok yüksek performans sunar. Özellikle API Gateway ve Query Router yapısı kurmak, AI modellerine istek atmak için Python ekosistemi idealdir.
 
-### Scraping
-- **Kütüphane:** BeautifulSoup + Requests
-- **Otomasyon:** Playwright (gerekirse)
-- **Zamanlama:** Cron job (nöbetçi eczane için)
+## 🗄️ Veritabanı ve Vektör Arama
+*   **İlişkisel Veritabanı:** PostgreSQL
+*   **Vektör Veritabanı (RAG için):** pgvector eklentisi (PostgreSQL üzerinde)
+*   **Avantajı:** Hem yapılandırılmış (SQL tabloları: mekanlar, eczaneler vb.) verileri hem de embedding vektörlerini (haberler, duyurular vb.) tek bir veritabanı altyapısında güvenli ve performanslı şekilde tutmayı sağlar. Ayrı bir vektör DB (Pinecone, Milvus vb.) ihtiyacını ortadan kaldırır.
 
-## 📊 Veri Kaynakları
+## 🤖 Yapay Zeka (AI Katmanı)
+*   **LLM API:** Groq (Llama / Mixtral modelleri) veya muadili hızlı LLM sağlayıcılar. AI sadece Query Router'dan veya RAG'dan dönen veriyi formatlayıp, açıklamakla yükümlüdür.
+*   **Embedding Modelleri:** Metin verilerini vektörlere dönüştürmek için açık kaynaklı veya API tabanlı embedding modelleri (Örn: OpenAI `text-embedding-3-small`, BGE-M3 veya lokal sentence-transformers).
 
-### Belediye Sitesi (Scraping)
-| Veri | URL | Güncelleme |
-|------|-----|------------|
-| Nöbetçi Eczane | `/kent-rehberi/nobetci-eczane` | Günlük |
-| Acil Telefonlar | `/kent-rehberi/acil-telefonlar` | Statik |
-| Kamu Kuruluşları | `/kent-rehberi/kamu-kuruluslari` | Statik |
-| Sağlık Kuruluşları | `/kent-rehberi/saglik-kuruluslari` | Statik |
-| Oteller | `/kent-rehberi/oteller` | Statik |
-| Turistik Yerler | `/aliaga/aliagada-turizm` | Statik |
-| Tarihçe | `/aliaga/tarihce` | Statik |
-| Gastronomi | `/aliaga/gastronomi` | Statik |
+## 🛠️ Altyapı ve Diğer Araçlar
+*   **Konteynerizasyon:** Docker & Docker Compose (Tüm yapıyı, özellikle PostgreSQL + pgvector kurulumunu kolaylaştırmak için).
+*   **Veri Toplama (Scraping):** Python tabanlı araçlar (BeautifulSoup, Selenium vb. ile belediye sitesi ve eczane verilerini otomatik çekmek için).
 
-### Manuel Giriş (Google Maps)
-| Kategori | Hedef Sayı |
-|----------|-----------|
-| Kafeler | 10-15 |
-| Restoranlar | 10-15 |
-| Marketler | 5 |
-| Berberler | 5 |
-| Diğer | 10 |
-
-## 🗄️ Veritabanı Şeması (v4 Güncel)
-
-### Dinamik Tablolar (Sürekli Güncel)
-- `news` (Haberler - başlık, özet, resim, tarih)
-- `announcements` (Duyurular - ihale, ilan, duyuru)
-- `projects` (Projeler - tamamlanan, devam eden)
-- `events` (Etkinlikler - tarih, yer, saat)
-- `pharmacy_duties` (Nöbetçi Eczaneler)
-
-### Statik Tablolar (Şehir Verisi)
-- `public_institutions`, `schools`, `libraries`, `health_facilities`
-- `services` (belediye hizmetleri)
-- `neighborhoods` (muhtarlıklar)
-- `history`, `geography`, `economy`
-- `antique_cities`, `gastronomy`, `hiking_routes`
-- `emergency_phones`
-
-## 🔧 Geliştirme Ortamı
-
-```
-AliağAİ/
-├── backend/
-│   ├── app/
-│   │   ├── scrapers/ (comprehensive.py, dynamic.py)
-│   │   ├── models/ (SQLAlchemy tabloları)
-│   │   ├── routes/ (admin.py, search.py)
-│   │   ├── main.py
-│   │   └── scheduler.py (APScheduler)
-│   ├── Dockerfile
-│   └── requirements.txt
-├── docker-compose.yml
-├── .env
-```
-
-## 📊 Veri Kaynakları (Güncel Durum)
-
-| Kaynak | Durum | Kayıt Sayısı | Güncelleme |
-|--------|-------|--------------|------------|
-| Nöbetçi Eczane | ✅ | 2 | Günlük |
-| Haberler | ✅ | 20+ | Günlük |
-| Duyurular | ✅ | 20+ | Günlük |
-| Projeler | ✅ | 52 | Haftalık |
-| Kamu Kurumları | ✅ | 60+ | Statik |
-| Mahalleler | ✅ | 36 | Statik |
-| Oteller | ⚠️ | 0 | Manuel Gerekli |
-
-
-## ⚠️ Kısıtlamalar
-
-1. **API Bütçesi Yok**
-   - Google Places API kullanılmayacak
-   - OpenAI yerine Groq (ücretsiz) tercih edilebilir
-
-2. **Uzaktan Çalışma**
-   - Aliağa'da değilsin
-   - Mekanları kendin gezemezssin
-   - Manuel veri girişi Google Maps'ten
-
-3. **MVP Odaklı**
-   - Tag sistemi şimdilik yok
-   - Kullanıcı geri bildirimi sonra
+## 🔀 Mimari Katmanlar
+1.  **React Native** --> HTTPS/REST API İstekleri
+2.  **FastAPI** --> API Endpoints & Query Router
+3.  **PostgreSQL / pgvector** --> Veri Deposu (SQL & Vector Search)
+4.  **LLM Service** --> Response Formatting

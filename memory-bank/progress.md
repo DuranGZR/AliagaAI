@@ -1,60 +1,35 @@
-# AliağaAI - İlerleme Takibi
+# AliağaAI - Gelişim Durumu (Progress)
 
-## ✅ Tamamlanan
+## 📊 Genel Durum
+**Aşama:** Yeni Mimariye Geçiş / Planlama (Yıl Sonu Sunumu vizyonuna adaptasyon)
 
-### Faz 0: Planlama (16/01/2026)
-- [x] Proje fikri ve vizyon belirlendi
-- [x] Veri envanteri çıkarıldı
-- [x] Teknik stack kararları alındı
+Mevcut proje yapısı bir "Chatbot" konseptinden çıkartılarak "Hibrit Arama Tabanlı Mobil Şehir Rehberi" (React Native + FastAPI + pgvector) konseptine geçiş yapmıştır. Memory Bank tamamen güncellenmiştir. Geliştirme aşaması yeniden şekillendirilmektedir.
 
-### Faz 1-2: Backend & Database (17/01/2026)
-- [x] FastAPI proje yapısı kuruldu
-- [x] PostgreSQL & SQLAlchemy kurulumu
-- [x] Veritabanı şeması (25 tablo) oluşturuldu
-- [x] Admin API endpointleri yazıldı
+## 🟢 Tamamlananlar (Completed)
+*   **Proje Vizyonunun Güncellenmesi:** Yeni PDF dökümanındaki sisteme göre proje kapsamı (Hibrit arama, SQL+RAG, mobil odaklılık) revize edildi.
+*   **Memory Bank Güncellemesi:**
+    *   `projectbrief.md` güncellendi (Mobil odak, hibrit yapı).
+    *   `productContext.md` güncellendi (Problemler ve AI'ın açıklayıcı rolü).
+    *   `systemPatterns.md` güncellendi (Query Router ve RAG mimarisi).
+    *   `techContext.md` güncellendi (React Native, PostgreSQL, pgvector).
+    *   `activeContext.md` oluşturuldu.
 
-### Faz 4: Scrapers & Otomasyon (17/01/2026)
-- [x] `ComprehensiveScraper` (Statik veriler)
-- [x] `DynamicScraper` (Haber, Duyuru, Proje)
-- [x] APScheduler kurulumu (5 cron job)
-- [x] Docker yapılandırması (Dockerfile, Compose)
-- [x] Veri çekimi tamamlandı (224+ kayıt)
+## 🟡 Devam Edenler (In Progress)
+*   **Mevcut Kod Tabanının Temizlenmesi:** Backend (FastAPI) tarafında eski konseptten kalan kodların, yeni Query Router ve PostgreSQL yapısı için temizlenip yeniden yapılandırılması.
+*   `docker-compose.yml` dosyasının PostgreSQL (pgvector eklentisiyle birlikte) destekleyecek şekilde güncellenmesi.
 
-## 🔄 Devam Eden
-
-### Faz 3: AI Entegrasyonu
-- [ ] Groq API client
-- [ ] RAG yapısı (Arama + Özetleme)
-- [ ] Prompt engineering
-
-## 📋 Yapılacaklar
-
-### Faz 5: Frontend
-- [ ] Next.js kurulumu
-- [ ] Arama arayüzü
-- [ ] Sonuç gösterimi
-- [ ] Mobil responsive tasarım
-
-### Faz 6: Deploy
-- [ ] Docker build & test
-- [ ] Cloud deploy (Render/Railway)
-
-## 🐛 Bilinen Sorunlar
-
-- `hotels` verisi çekilemiyor (JS rendering gerekli, tarayıcı tabanlı çözüm lazım).
-- `tourism_spots` ve `places` (mekanlar) için manuel giriş veya Google Maps gerekiyor.
-
-## 📈 Metrikler
-
-| Metrik | Hedef | Güncel |
-|--------|-------|--------|
-| Statik Veri | 100+ | 132 |
-| Dinamik Veri | Güncel | 92 |
-| Toplam Tablo | 20+ | 25 |
-| Otomasyon | Günlük | ✅ (APScheduler) |
-
-## 📝 Notlar
-
-- Scraper'lar verimli çalışıyor, sadece `hotels` hariç.
-- Docker yapısı prod için hazır.
-- Scheduler `main.py` lifespan içinde otomatik başlıyor.
+## 🔴 Yapılacaklar (To Do)
+*   [ ] **Veritabanı Altyapısı:**
+    *   Docker üzerinde `pgvector` içeren PostgreSQL imajının ayağa kaldırılması.
+    *   Tablo şemalarının (Mekanlar, Kategoriler vb.) oluşturulması.
+*   [ ] **Backend - Query Router:**
+    *   Kullanıcı niyetini anlayan ve SQL / RAG ayrımını yapan yönlendirici fonksiyonunun yazılması.
+*   [ ] **Backend - RAG Pipeline:**
+    *   Veri toplama, temizleme, chunking ve embedding (vektörleştirme) servislerinin yazılması.
+    *   Similarity search fonksiyonlarının geliştirilmesi.
+*   [ ] **Frontend - Mobil Uygulama (React Native):**
+    *   Projenin başlatılması (Expo vb. ile).
+    *   API bağlantılarının kurulması.
+    *   Arama/Chat UI tasarımının yapılması.
+*   [ ] **Admin Panel:**
+    *   Manuel veri girişi (Restoranlar, kafeler) için arayüz sağlanması.

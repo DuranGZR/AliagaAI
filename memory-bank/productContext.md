@@ -1,66 +1,48 @@
 # AliağaAI - Ürün Bağlamı
 
-## 🎯 Neden Bu Proje Var?
+## 🧐 Hangi Problemi Çözüyoruz?
 
-### Problem
-Yerel aramalar için Google yetersiz:
-- Sonuçlar karışık ve reklam dolu
-- Yerel mantık yok ("sessiz kafe" araması çalışmıyor)
-- Güncel değil (kapanan mekanlar hala çıkıyor)
-- Kullanıcı deneyimi yok
+Günümüzde kullanıcılar, Aliağa gibi küçük yerleşim bölgelerine ait "spesifik ve anlık" bilgileri aramak için Google gibi genel amaçlı arama motorlarını kullanmaktadır. Ancak bu sistemler:
+*   Küçük ilçelerin güncel yerel bilgilerini doğru indeksleyemeyebilir.
+*   Arama sonuçları SEO odaklı, reklam dolu veya eski bilgiler barındırır.
+*   "Nöbetçi eczane", "Aileyle gidilecek restoran" veya "Hafta sonu etkinlikleri" gibi *bağlam* gerektiren soruları doğru anlayamaz.
 
-### Çözüm
-Aliağa'ya özel, yerel verilerle çalışan bir AI rehberi.
+Sonuç olarak kullanıcılar, basit bir yerel bilgiye ulaşmak için onlarca site gezmek zorunda kalır.
 
-## 👥 Hedef Kullanıcı
+## 💡 Çözüm: AliağaAI (Mobil Şehir Rehberi)
 
-1. **Aliağa'da yaşayanlar**
-   - Günlük ihtiyaçlar (eczane, market)
-   - Sosyal mekanlar (kafe, restoran)
+AliağaAI, kullanıcının niyetini anlayan, sadece **Aliağa'ya özel** filtreli ve temiz yerel veritabanını kullanan, doğrudan ve reklamsız yanıt veren hibrit bir akıllı şehir rehberidir. Mobil uygulama formatında tasarlandığı için kullanıcıya her an erişilebilir bir pratiklik sunar.
 
-2. **Aliağa'ya gelenler**
-   - Turistik yerler
-   - Antik kentler
-   - Nerede ne yenir
+### Temel Prensipler
+1.  **Yerellik:** Her şey Aliağa sınırları (ve gelecekte çevre ilçeler) içerisindedir.
+2.  **Kararı AI Vermez:** AI uydurma (halüsinasyon) yapmaz. Sistemin arka planı (SQL + RAG) veriyi kesin ve net bir şekilde bulur; AI, sadece bu veriyi doğal bir insan dilinde, kullanıcıya hitap edecek şekilde paketleyip sunar.
+3.  **Hız ve Pratiklik:** Kullanıcı soruyu sorar (yazarak veya sesle - mobil app), net cevabı ve mekanların/etkinliklerin temel bilgisini (harita, saatler vb.) anında alır.
 
-3. **Pratik bilgi arayanlar**
-   - Acil telefonlar
-   - Hastane bilgisi
-   - Belediye hizmetleri
+## 📊 Veri Kaynakları ve Yönetimi
 
-## 🎭 Kullanıcı Deneyimi
+Uygulamanın gücü, içerdiği filtrelenmiş ve zenginleştirilmiş verilerden gelir. İki tür veri kaynağı kullanılmaktadır:
 
-### Akış
-```
-Kullanıcı girer: "sessiz kafe"
-    ↓
-Sistem: keyword → category → filtre → skorla
-    ↓
-AI: "Aliağa'da sakin ortam için X Kafe öne çıkıyor."
-    ↓
-Kullanıcı: 3 mekan kartı görür
-```
+1.  **Otomatik Veriler (Scraping/API):**
+    *   Belediye Duyuruları
+    *   Haberler ve Etkinlikler
+    *   Nöbetçi Eczaneler
+    *   *(Bu veriler belirli periyotlarda otomatik olarak güncellenir)*
+2.  **Manuel Veriler (Küratörlü):**
+    *   Restoranlar ve Kafeler (Mekan özellikleri: sessiz, deniz kenarı, aileye uygun vb.)
+    *   Turistik ve tarihi yerler.
 
-### Prensipler
-- **Net:** Tek cevap, karmaşık değil
-- **Hızlı:** 3 saniye içinde sonuç
-- **Güvenilir:** Gerçek veri, uydurma yok
-- **Mobil öncelikli:** Tek el kullanım
+**Yönetim Paneli (Admin Panel):**
+Sistemin dinamik kalabilmesi için mekan ekleme, veri düzenleme, kategori yönetimi ve içerik güncelleme yapılabilen bir web tabanlı Admin Paneli mevcuttur.
 
-## 🏆 Başarı Kriterleri
+## 🚀 Kullanıcı Deneyimi ve Gelecek Geliştirmeler
 
-### MVP
-- [ ] 50 mekan veritabanı
-- [ ] Temel arama çalışıyor
-- [ ] AI özet veriyor
-- [ ] Mobil responsive
+**MVP'de Sunulan Deneyim:**
+*   Soru sorma alanı (Chat / Arama çubuğu).
+*   Gelen direkt, anlaşılır yanıt.
+*   Önerilen mekanların yapılandırılmış (kart) görünümü.
 
-### V1.0
-- [ ] Nöbetçi eczane (günlük)
-- [ ] Turistik yerler
-- [ ] Kullanıcı geri bildirimi
-
-### Gelecek
-- [ ] Tag sistemi
-- [ ] Kullanıcı katkısı
-- [ ] Diğer ilçeler
+**Gelecek Geliştirmeler (Roadmap):**
+*   **Konum Bazlı Öneriler:** Uygulamanın, cihazın konumunu kullanarak en yakındaki açık mekanları önermesi.
+*   **Harita Entegrasyonu:** Sonuçların doğrudan uygulama içi bir haritada gösterilmesi.
+*   **Kullanıcı Yorum Sistemi:** Mekanlara kullanıcı bazlı geri dönüşlerin (yorum, puan) eklenmesi.
+*   **Farklı İlçelere Genişleme:** Altyapının "İlçemin Rehberi" modeliyle Menemen, Foça, Karşıyaka gibi bölgelere scale edilmesi.
