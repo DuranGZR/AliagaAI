@@ -1,79 +1,62 @@
-"""
-AliağaAI Backend - FastAPI Application
-"""
-
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
-from app.database import init_db
+from app.database import init_db, close_db
 from app.config import get_settings
-from app.routes import admin, search
+from app.routes.search import router as search_router
+from app.routes.admin import router as admin_router
 from app.scheduler import init_scheduler, shutdown_scheduler
 
-# Logging ayarları
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
-
 settings = get_settings()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Uygulama başlangıç ve kapanış işlemleri"""
-    # Başlangıç
-    logger.info("Starting AliağaAI Backend...")
-    init_db()
-    logger.info("Database initialized")
-    
-    # Scheduler başlat
+    logger.info("Starting AliağaAI Backend v%s", settings.app_version)
+    await init_db()
     init_scheduler()
-    logger.info("Scheduler initialized")
-    
     yield
-    
-    # Kapanış
     shutdown_scheduler()
-    logger.info("Shutting down AliağaAI Backend...")
+    await close_db()
+    logger.info("AliağaAI Backend shut down")
 
 
 app = FastAPI(
     title="AliağaAI API",
-    description="Aliağa'nın Yerel Yapay Zeka Rehberi",
-    version="0.1.0",
-    lifespan=lifespan
+    description="Aliağa Hibrit Arama Tabanlı Mobil Şehir Rehberi",
+    version=settings.app_version,
+    lifespan=lifespan,
 )
 
-# CORS ayarları
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Production'da değiştir
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Routes
-app.include_router(search.router, prefix="/api", tags=["Search"])
-app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
+app.include_router(search_router, prefix="/api", tags=["Search & Chat"])
+app.include_router(admin_router, prefix="/api/admin", tags=["Admin"])
 
 
 @app.get("/")
 async def root():
-    """Ana sayfa"""
     return {
-        "name": "AliağaAI API",
-        "version": "0.1.0",
+        "name": settings.app_name,
+        "version": settings.app_version,
         "status": "running",
-        "docs": "/docs"
+        "docs": "/docs",
     }
 
 
 @app.get("/health")
 async def health():
-    """Sağlık kontrolü"""
-    return {"status": "healthy"}
+    return {"status": "healthy", "version": settings.app_version}
