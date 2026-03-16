@@ -1,13 +1,37 @@
 # ============================================
 # AliağaAI - Docker Compose
-# Backend + (Opsiyonel Frontend)
+# PostgreSQL (pgvector) + FastAPI Backend
 # ============================================
 
-version: '3.8'
+version: "3.8"
 
 services:
   # ==========================================
-  # BACKEND - FastAPI
+  # DATABASE - PostgreSQL + pgvector
+  # ==========================================
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: aliagai-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: aliagai
+      POSTGRES_PASSWORD: aliagai_secret
+      POSTGRES_DB: aliagai_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aliagai -d aliagai_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - aliagai-network
+
+  # ==========================================
+  # BACKEND - FastAPI (Async)
   # ==========================================
   backend:
     build:
@@ -18,40 +42,30 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgresql+asyncpg://aliagai:aliagai_secret@postgres:5432/aliagai_db
       - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-intfloat/multilingual-e5-small}
       - ENV=production
+      - DEBUG=false
     volumes:
-      # Logs için
       - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 30s
     networks:
       - aliagai-network
-  # ==========================================
-  # FRONTEND - (Sonra eklenecek)
-  # ==========================================
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   container_name: aliagai-frontend
-  #   restart: unless-stopped
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - aliagai-network
 
 networks:
   aliagai-network:
     driver: bridge
 
-# Volumes (opsiyonel - local DB için)
-# volumes:
-#   postgres_data:
+volumes:
+  postgres_data:
+    driver: local
