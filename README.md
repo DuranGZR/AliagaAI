@@ -65,22 +65,3 @@ cd frontend
 npm install
 npx expo start
 ```
-
-## Veri Kaynakları ve Güncelleme Stratejisi
-
-- **CollectAPI:** Eczane, hava durumu ve ekonomi verileri için periyodik güncelleme.
-- **Scraping (httpx + BeautifulSoup):** Belediye duyuruları, haberler ve kesinti bilgileri için asenkron veri toplama.
-- **Seed Data:** Sabit kurum bilgileri, posta kodları ve acil numaralar.
-- **Admin Panel:** Küratörlü mekan ve hizmet sağlayıcı verilerinin manuel yönetimi.
-
-## Yol Haritası (Roadmap)
-
-- [ ] Konum tabanlı anlık önerilerin entegrasyonu.
-- [ ] Uygulama içi etkileşimli harita görünümü (Mapbox/Google Maps).
-- [ ] Kullanıcı yorum ve puanlama sistemi.
-- [ ] Komşu ilçelere (Menemen, Foça) hizmet genişlemesi.
-- [ ] Sesli asistan ve dikreleme desteği.
-
-## Lisans
-
-Bu proje tüm hakları saklı olarak geliştirilmiştir. İzinsiz paylaşımı ve kullanımı yasaktır.
