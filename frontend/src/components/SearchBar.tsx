@@ -5,9 +5,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from "react-native";
+import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, borderRadius } from "../theme";
+import { colors, spacing, borderRadius, typography, shadows } from "../theme";
 
 interface SearchBarProps {
   value: string;
@@ -25,59 +27,81 @@ export function SearchBar({
   loading = false,
 }: SearchBarProps) {
   return (
-    <View style={styles.container}>
-      <Ionicons
-        name="search"
-        size={20}
-        color={colors.textTertiary}
-        style={styles.icon}
-      />
-      <TextInput
-        style={styles.input}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={colors.textTertiary}
-        returnKeyType="search"
-        onSubmitEditing={onSubmit}
-        editable={!loading}
-      />
-      {loading ? (
-        <ActivityIndicator size="small" color={colors.primary} style={styles.action} />
-      ) : (
-        value.length > 0 && (
-          <TouchableOpacity onPress={onSubmit} style={styles.action}>
-            <Ionicons name="arrow-up-circle" size={32} color={colors.primary} />
-          </TouchableOpacity>
-        )
-      )}
+    <View style={styles.wrapper}>
+      <BlurView intensity={100} tint="light" style={styles.container}>
+        <Ionicons
+          name="chatbubble-ellipses-outline"
+          size={20}
+          color={colors.primary}
+          style={styles.icon}
+        />
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={colors.textTertiary}
+          multiline={false}
+          returnKeyType="send"
+          onSubmitEditing={onSubmit}
+          editable={!loading}
+        />
+        <TouchableOpacity 
+          onPress={onSubmit} 
+          style={[styles.action, (!value.trim() || loading) && styles.actionDisabled]}
+          disabled={!value.trim() || loading}
+          activeOpacity={0.7}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <Ionicons name="arrow-up" size={20} color="white" />
+          )}
+        </TouchableOpacity>
+      </BlurView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xl,
+    paddingTop: spacing.sm,
+  },
   container: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: borderRadius.xxl,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    marginHorizontal: spacing.lg,
-    marginVertical: spacing.sm,
+    paddingVertical: Platform.OS === "ios" ? spacing.sm : 2,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadows.premium,
+    overflow: "hidden",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
   },
   icon: {
+    marginLeft: spacing.sm,
     marginRight: spacing.sm,
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    ...typography.body,
     color: colors.text,
-    paddingVertical: spacing.xs,
+    minHeight: 48,
   },
   action: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
     marginLeft: spacing.sm,
+  },
+  actionDisabled: {
+    backgroundColor: colors.textTertiary,
+    opacity: 0.5,
   },
 });

@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Linking } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Linking, Platform } from "react-native";
+import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, borderRadius, shadows, typography } from "../theme";
 
@@ -31,78 +32,85 @@ export function PlaceCard({
   };
 
   return (
-    <View style={styles.card}>
-      <View style={styles.header}>
-        <View style={styles.titleRow}>
-          <Text style={styles.name} numberOfLines={2}>
-            {name}
-          </Text>
-          {rating != null && (
-            <View style={styles.ratingBadge}>
-              <Ionicons name="star" size={12} color="#FCD34D" />
-              <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
+    <View style={styles.cardContainer}>
+      <BlurView intensity={60} tint="light" style={styles.card}>
+        <View style={styles.header}>
+          <View style={styles.titleRow}>
+            <Text style={styles.name} numberOfLines={1}>
+              {name}
+            </Text>
+            {rating != null && (
+              <View style={styles.ratingBadge}>
+                <Ionicons name="star" size={12} color="#F59E0B" />
+                <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
+              </View>
+            )}
+          </View>
+          {category && (
+            <View style={styles.categoryBadge}>
+              <Text style={styles.categoryText}>{category}</Text>
             </View>
           )}
         </View>
-        {category && (
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{category}</Text>
+
+        {address && (
+          <View style={styles.infoRow}>
+            <Ionicons name="location-sharp" size={14} color={colors.primary} />
+            <Text style={styles.infoText} numberOfLines={1}>
+              {address}
+            </Text>
           </View>
         )}
-      </View>
 
-      {address && (
-        <View style={styles.infoRow}>
-          <Ionicons name="location-outline" size={14} color={colors.textSecondary} />
-          <Text style={styles.infoText} numberOfLines={2}>
-            {address}
-          </Text>
-        </View>
-      )}
-
-      {tags && tags.length > 0 && (
-        <View style={styles.tagsRow}>
-          {tags.slice(0, 4).map((tag) => (
-            <View key={tag} style={styles.tag}>
-              <Text style={styles.tagText}>{tag}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-
-      <View style={styles.actions}>
-        {phone && (
-          <TouchableOpacity style={styles.actionButton} onPress={handleCall}>
-            <Ionicons name="call-outline" size={16} color={colors.primary} />
-            <Text style={styles.actionText}>Ara</Text>
-          </TouchableOpacity>
+        {tags && tags.length > 0 && (
+          <View style={styles.tagsRow}>
+            {tags.slice(0, 3).map((tag) => (
+              <View key={tag} style={styles.tag}>
+                <Text style={styles.tagText}>{tag}</Text>
+              </View>
+            ))}
+          </View>
         )}
-        {maps_link && (
-          <TouchableOpacity style={styles.actionButton} onPress={handleMap}>
-            <Ionicons name="navigate-outline" size={16} color={colors.primary} />
-            <Text style={styles.actionText}>Yol Tarifi</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+
+        <View style={styles.actions}>
+          {phone && (
+            <TouchableOpacity style={styles.actionButton} onPress={handleCall}>
+              <Ionicons name="call" size={16} color={colors.primary} />
+              <Text style={styles.actionText}>Ara</Text>
+            </TouchableOpacity>
+          )}
+          {maps_link && (
+            <TouchableOpacity style={[styles.actionButton, styles.primaryAction]} onPress={handleMap}>
+              <Ionicons name="navigate" size={16} color="white" />
+              <Text style={[styles.actionText, styles.primaryActionText]}>Yol Tarifi</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </BlurView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-    padding: spacing.lg,
+  cardContainer: {
     marginBottom: spacing.md,
-    ...shadows.md,
+    ...shadows.soft,
+  },
+  card: {
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    overflow: "hidden",
   },
   header: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
   },
   titleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    alignItems: "center",
   },
   name: {
     ...typography.h3,
@@ -113,16 +121,16 @@ const styles = StyleSheet.create({
   ratingBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FEF3C7",
+    backgroundColor: "rgba(245, 158, 11, 0.1)",
     paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: 4,
     borderRadius: borderRadius.sm,
-    gap: 2,
+    gap: 4,
   },
   ratingText: {
     ...typography.caption,
-    fontWeight: "600",
-    color: "#92400E",
+    fontWeight: "700",
+    color: "#B45309",
   },
   categoryBadge: {
     alignSelf: "flex-start",
@@ -135,12 +143,14 @@ const styles = StyleSheet.create({
   categoryText: {
     ...typography.caption,
     color: colors.primary,
-    fontWeight: "500",
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   infoRow: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: spacing.xs,
+    alignItems: "center",
+    marginBottom: spacing.sm,
     gap: spacing.xs,
   },
   infoText: {
@@ -152,34 +162,46 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing.xs,
-    marginTop: spacing.sm,
+    marginBottom: spacing.md,
   },
   tag: {
-    backgroundColor: colors.borderLight,
+    backgroundColor: "rgba(148, 163, 184, 0.1)",
     paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: 4,
     borderRadius: borderRadius.full,
   },
   tagText: {
-    ...typography.caption,
+    fontSize: 10,
+    fontWeight: "600",
     color: colors.textSecondary,
   },
   actions: {
     flexDirection: "row",
-    gap: spacing.md,
-    marginTop: spacing.md,
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.borderLight,
+    gap: spacing.sm,
+    marginTop: spacing.sm,
   },
   actionButton: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     gap: spacing.xs,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  primaryAction: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   actionText: {
     ...typography.bodySmall,
     color: colors.primary,
-    fontWeight: "500",
+    fontWeight: "700",
+  },
+  primaryActionText: {
+    color: "white",
   },
 });

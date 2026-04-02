@@ -1,40 +1,14 @@
-# ============================================
-# AliağaAI Backend - Dependencies
-# ============================================
-
-# Web Framework
-fastapi==0.115.6
-uvicorn[standard]==0.34.0
-python-multipart==0.0.18
-
-# Database - Async PostgreSQL
-sqlalchemy[asyncio]==2.0.36
-asyncpg==0.30.0
-alembic==1.14.1
-pgvector==0.3.6
-
-# Pydantic & Settings
-pydantic==2.10.4
-pydantic-settings==2.7.1
-
-# AI & Embeddings
-groq==0.15.0
-sentence-transformers==3.3.1
-torch==2.5.1
-numpy==2.2.1
-
-# HTTP & Scraping
-httpx==0.28.1
-beautifulsoup4==4.12.3
-
-# Scheduling
-apscheduler==3.10.4
-
-# Environment
-python-dotenv==1.0.1
-
-# Logging & Monitoring
-loguru==0.7.3
-
-# Utils
-tenacity==9.0.0
+fastapi
+uvicorn[standard]
+pydantic>=2.0
+pydantic-settings
+sqlalchemy[asyncio]
+asyncpg
+pgvector
+sentence-transformers
+groq
+httpx
+loguru
+python-dotenv
+python-multipart
+tenacity
