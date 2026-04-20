@@ -1,93 +1,29 @@
-import React, { useState, useRef, useCallback } from "react";
+import React from "react";
 import {
   View,
-  FlatList,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
   Text,
-  ActivityIndicator,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 
-import { SearchBar } from "../components/SearchBar";
-import { ChatBubble } from "../components/ChatBubble";
-import { PlaceCard } from "../components/PlaceCard";
-import { chatService } from "../services/api";
-import { ChatMessage } from "../types";
 import { colors, spacing, typography, shadows, borderRadius } from "../theme";
 
+type RootTabParamList = {
+  Home: undefined;
+  Chat: undefined;
+  Dashboard: undefined;
+};
+
+type NavigationProp = BottomTabNavigationProp<RootTabParamList, 'Home'>;
+
 export function HomeScreen() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const flatListRef = useRef<FlatList>(null);
-
-  const handleSend = useCallback(async () => {
-    const query = input.trim();
-    if (!query || loading) return;
-
-    const userMsg: ChatMessage = {
-      id: Date.now().toString(),
-      role: "user",
-      content: query,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setLoading(true);
-
-    try {
-      const response = await chatService.send(query);
-      const assistantMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: response.ai_response || "Aradığın bilgiye şu an ulaşamadım, ama Aliağa hakkında sormaya devam edebilirsin.",
-        timestamp: new Date(),
-        results: response.results,
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
-    } catch {
-      const errorMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: "Bağlantıda küçük bir aksaklık oldu. Lütfen tekrar dener misin?",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMsg]);
-    } finally {
-      setLoading(false);
-    }
-  }, [input, loading]);
-
-  const renderItem = useCallback(({ item }: { item: ChatMessage }) => {
-    return (
-      <View style={styles.messageWrapper}>
-        <ChatBubble role={item.role} content={item.content} />
-        {item.results && item.results.length > 0 && (
-          <View style={styles.resultsContainer}>
-            {item.results.slice(0, 3).map((result, index) => (
-              <PlaceCard
-                key={`${item.id}-${index}`}
-                name={result.name || result.title || "—"}
-                category={result.category}
-                address={result.address}
-                phone={result.phone}
-                rating={result.rating}
-                tags={result.tags}
-                maps_link={result.maps_link}
-              />
-            ))}
-          </View>
-        )}
-      </View>
-    );
-  }, []);
+  const navigation = useNavigation<NavigationProp>();
 
   return (
     <LinearGradient
@@ -105,69 +41,49 @@ export function HomeScreen() {
             </TouchableOpacity>
         </View>
 
-        {messages.length === 0 ? (
-          <View style={styles.emptyContainer}>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.heroSection}>
             <LinearGradient
-              colors={["#3B82F6", "#2563EB"]}
+              colors={colors.gradients.accent as any}
               style={styles.heroIconContainer}
             >
-              <Ionicons name="chatbubbles" size={48} color="white" />
+              <Ionicons name="planet" size={48} color={colors.background} />
             </LinearGradient>
             
-            <Text style={styles.heroTitle}>Nasıl yardımcı olabilirim?</Text>
+            <Text style={styles.heroTitle}>Aigai'den Günümüze</Text>
             <Text style={styles.heroSubtitle}>
-              Aliağa'nın tarihi, lezzet durakları veya nöbetçi eczaneleri... Merak ettiğin her şeyi bana sorabilirsin.
+              Kültürel mirası ve modern yaşamı keşfet. Ben senin kişisel Aliağa asistanınım.
             </Text>
-            
-            <View style={styles.suggestionsGrid}>
-              {[
-                "Nöbetçi Eczaneler",
-                "Gezilecek Yerler",
-                "Haftalık Etkinlikler",
-                "Lezzet Durakları",
-              ].map((s) => (
-                <TouchableOpacity
-                  key={s}
-                  style={styles.suggestionItem}
-                  onPress={() => setInput(s)}
-                >
-                  <Text style={styles.suggestionText}>{s}</Text>
-                </TouchableOpacity>
-              ))}
+          </View>
+          
+          <View style={styles.suggestionsGrid}>
+            {[
+              { icon: "medical", title: "Nöbetçi Eczaneler", nav: "Dashboard" },
+              { icon: "partly-sunny", title: "Hava Durumu", nav: "Dashboard" },
+              { icon: "restaurant", title: "Lezzet Durakları", nav: "Chat" },
+              { icon: "camera", title: "Antik Kentler", nav: "Chat" },
+            ].map((item) => (
+              <TouchableOpacity
+                key={item.title}
+                style={styles.suggestionBox}
+                onPress={() => item.nav === "Chat" ? navigation.navigate("Chat") : navigation.navigate("Dashboard")}
+              >
+                <View style={styles.suggestionIconWrapper}>
+                  <Ionicons name={item.icon as any} size={28} color={colors.primary} />
+                </View>
+                <Text style={styles.suggestionText}>{item.title}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <TouchableOpacity style={styles.searchBarFake} onPress={() => navigation.navigate("Chat")}>
+            <Ionicons name="search" size={20} color={colors.textSecondary} />
+            <Text style={styles.searchBarFakeText}>Aliağa hakkında bir şeyler sor...</Text>
+            <View style={styles.searchBarMic}>
+              <Ionicons name="mic" size={18} color={colors.background} />
             </View>
-          </View>
-        ) : (
-          <FlatList
-            ref={flatListRef}
-            data={messages}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContent}
-            showsVerticalScrollIndicator={false}
-            onContentSizeChange={() =>
-              flatListRef.current?.scrollToEnd({ animated: true })
-            }
-          />
-        )}
-
-        {loading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="small" color={colors.primary} />
-            <Text style={styles.loadingText}>Asistan araştırıyor...</Text>
-          </View>
-        )}
-
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-        >
-          <SearchBar
-            value={input}
-            onChangeText={setInput}
-            onSubmit={handleSend}
-            loading={loading}
-          />
-        </KeyboardAvoidingView>
+          </TouchableOpacity>
+        </ScrollView>
       </SafeAreaView>
     </LinearGradient>
   );
@@ -200,16 +116,21 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "white",
+    backgroundColor: colors.surfaceHighlight,
     justifyContent: "center",
     alignItems: "center",
-    ...shadows.soft,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadows.glow,
   },
-  emptyContainer: {
-    flex: 1,
+  scrollContent: {
+    paddingBottom: 120, // Leave space for Pill Tab Bar
+  },
+  heroSection: {
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: spacing.huge,
+    marginTop: spacing.xl,
   },
   heroIconContainer: {
     width: 96,
@@ -218,7 +139,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: spacing.xxl,
-    ...shadows.premium,
+    ...shadows.glow,
   },
   heroTitle: {
     ...typography.h2,
@@ -231,46 +152,63 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: "center",
     lineHeight: 24,
-    marginBottom: spacing.huge,
+    marginBottom: spacing.xxxl,
   },
   suggestionsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "center",
+    paddingHorizontal: spacing.lg,
+    justifyContent: "space-between",
     gap: spacing.md,
+    marginBottom: spacing.xxxl,
   },
-  suggestionItem: {
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.xl,
-    backgroundColor: "white",
+  suggestionBox: {
+    width: "47%",
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderLight,
+    alignItems: "center",
     ...shadows.soft,
+  },
+  suggestionIconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.primaryLight,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: spacing.sm,
   },
   suggestionText: {
     ...typography.bodyMedium,
-    color: colors.primary,
+    color: colors.text,
+    textAlign: "center",
   },
-  listContent: {
-    paddingVertical: spacing.lg,
-  },
-  messageWrapper: {
-    marginBottom: spacing.lg,
-  },
-  resultsContainer: {
-    paddingHorizontal: spacing.lg,
-    marginTop: spacing.md,
-  },
-  loadingContainer: {
+  searchBarFake: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
+    backgroundColor: colors.glassDark,
+    marginHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    height: 56,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
-  loadingText: {
-    ...typography.bodySmall,
+  searchBarFakeText: {
+    flex: 1,
+    marginLeft: spacing.sm,
+    ...typography.body,
     color: colors.textSecondary,
   },
+  searchBarMic: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  }
 });

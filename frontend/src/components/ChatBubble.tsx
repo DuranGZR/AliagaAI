@@ -23,7 +23,7 @@ export function ChatBubble({ role, content }: ChatBubbleProps) {
 
   return (
     <View style={styles.row}>
-      <BlurView intensity={80} tint="light" style={[styles.bubble, styles.bubbleAssistant]}>
+      <BlurView intensity={30} tint="light" style={[styles.bubble, styles.bubbleAssistant]}>
         <Text style={[styles.text, styles.textAssistant]}>{content}</Text>
       </BlurView>
     </View>
@@ -46,16 +46,17 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
   },
   bubbleUser: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary, // Terracotta for user
     borderBottomRightRadius: 4,
-    ...shadows.soft,
+    ...shadows.glow,
   },
   bubbleAssistant: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.glassDark,
     borderBottomLeftRadius: 4,
     borderWidth: 1,
     borderColor: colors.borderLight,
     ...shadows.soft,
+    overflow: "hidden",
   },
   text: {
     ...typography.body,
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
   },
   textUser: {
     color: colors.textInverse,
-    fontWeight: "500",
+    fontWeight: "600",
   },
   textAssistant: {
     color: colors.text,

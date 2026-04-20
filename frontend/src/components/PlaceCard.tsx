@@ -33,7 +33,7 @@ export function PlaceCard({
 
   return (
     <View style={styles.cardContainer}>
-      <BlurView intensity={60} tint="light" style={styles.card}>
+      <BlurView intensity={50} tint="dark" style={styles.card}>
         <View style={styles.header}>
           <View style={styles.titleRow}>
             <Text style={styles.name} numberOfLines={1}>
@@ -55,7 +55,7 @@ export function PlaceCard({
 
         {address && (
           <View style={styles.infoRow}>
-            <Ionicons name="location-sharp" size={14} color={colors.primary} />
+            <Ionicons name="location-sharp" size={14} color={colors.secondary} />
             <Text style={styles.infoText} numberOfLines={1}>
               {address}
             </Text>
@@ -75,13 +75,13 @@ export function PlaceCard({
         <View style={styles.actions}>
           {phone && (
             <TouchableOpacity style={styles.actionButton} onPress={handleCall}>
-              <Ionicons name="call" size={16} color={colors.primary} />
+              <Ionicons name="call" size={16} color={colors.text} />
               <Text style={styles.actionText}>Ara</Text>
             </TouchableOpacity>
           )}
           {maps_link && (
             <TouchableOpacity style={[styles.actionButton, styles.primaryAction]} onPress={handleMap}>
-              <Ionicons name="navigate" size={16} color="white" />
+              <Ionicons name="navigate" size={16} color={colors.textInverse} />
               <Text style={[styles.actionText, styles.primaryActionText]}>Yol Tarifi</Text>
             </TouchableOpacity>
           )}
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: borderRadius.xl,
     padding: spacing.lg,
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    backgroundColor: colors.glassDark,
     borderWidth: 1,
     borderColor: colors.borderLight,
     overflow: "hidden",
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   ratingBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(245, 158, 11, 0.1)",
+    backgroundColor: "rgba(245, 158, 11, 0.2)",
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     borderRadius: borderRadius.sm,
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   ratingText: {
     ...typography.caption,
     fontWeight: "700",
-    color: "#B45309",
+    color: "#FCD34D",
   },
   categoryBadge: {
     alignSelf: "flex-start",
@@ -139,10 +139,12 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: borderRadius.sm,
     marginTop: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
   categoryText: {
     ...typography.caption,
-    color: colors.primary,
+    color: colors.textSecondary,
     fontWeight: "600",
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -165,7 +167,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   tag: {
-    backgroundColor: "rgba(148, 163, 184, 0.1)",
+    backgroundColor: colors.glassDark,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     borderRadius: borderRadius.full,
@@ -188,20 +192,21 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
-    backgroundColor: "white",
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderLight,
   },
   primaryAction: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondary,
+    ...shadows.glow,
   },
   actionText: {
     ...typography.bodySmall,
-    color: colors.primary,
+    color: colors.text,
     fontWeight: "700",
   },
   primaryActionText: {
-    color: "white",
+    color: colors.textInverse,
   },
 });

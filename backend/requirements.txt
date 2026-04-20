@@ -12,3 +12,7 @@ loguru
 python-dotenv
 python-multipart
 tenacity
+beautifulsoup4
+lxml
+apscheduler
+

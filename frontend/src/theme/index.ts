@@ -1,25 +1,31 @@
 export const colors = {
-  // Brand Colors - More Vibrant & Tech-forward
-  primary: "#2563EB", // Electric Blue
-  primaryLight: "rgba(37, 99, 235, 0.1)",
-  primaryDark: "#1E3A8A",
+  // Brand Colors - Cultural Heritage Identity
+  primary: "#E16D54", // Terracotta
+  primaryLight: "rgba(225, 109, 84, 0.15)",
+  primaryDark: "#ad4a34",
 
-  secondary: "#F59E0B", // Amber/Gold for "Premium" accents
-  secondaryLight: "rgba(245, 158, 11, 0.1)",
+  secondary: "#ffb4a4", // Warm Accent
+  secondaryLight: "rgba(255, 180, 164, 0.15)",
+  secondaryDark: "#c88576",
+  
+  tertiary: "#5fdac6", // Cool Aegean
+  tertiaryLight: "rgba(95, 218, 198, 0.15)",
 
-  // Neutral Colors - Clean & Professional
-  background: "#F8FAFC",
-  surface: "rgba(255, 255, 255, 0.85)",
-  glass: "rgba(255, 255, 255, 0.7)",
-  glassDark: "rgba(15, 23, 42, 0.05)",
+  // Neutral Colors - Premium Glass Dark Theme
+  background: "#041329", // The Void (Deep Navy)
+  surface: "rgba(17, 32, 54, 0.65)", // Dark glass surface
+  surfaceHighlight: "rgba(255, 255, 255, 0.08)", // Bright edge for glass
+  glass: "rgba(17, 32, 54, 0.4)",
+  glassDark: "rgba(4, 19, 41, 0.6)",
+  glassNav: "rgba(44, 57, 81, 0.85)", // Pill Nav Background
 
-  text: "#0F172A",
-  textSecondary: "#475569",
-  textTertiary: "#94A3B8",
-  textInverse: "#FFFFFF",
+  text: "#F8FAFC",
+  textSecondary: "#ddc0ba",
+  textTertiary: "rgba(248, 250, 252, 0.5)",
+  textInverse: "#041329",
 
-  border: "rgba(226, 232, 240, 0.8)",
-  borderLight: "rgba(255, 255, 255, 0.5)",
+  border: "rgba(255, 255, 255, 0.12)",
+  borderLight: "rgba(255, 255, 255, 0.05)",
 
   // Semantic
   success: "#10B981",
@@ -27,11 +33,12 @@ export const colors = {
   error: "#EF4444",
   info: "#3B82F6",
 
-  // Specialized
+  // Specialized Gradients
   gradients: {
-    bg: ["#F0F9FF", "#E0F2FE", "#F8FAFC"],
-    primary: ["#2563EB", "#1D4ED8"],
-    surface: ["rgba(255, 255, 255, 0.9)", "rgba(255, 255, 255, 0.7)"],
+    bg: ["#041329", "#061833", "#081d3d"], // Oceanic descent
+    primary: ["#E16D54", "#e88b76"],
+    surface: ["rgba(25, 45, 70, 0.7)", "rgba(10, 25, 45, 0.4)"],
+    accent: ["#ffb4a4", "#E16D54"], // Vibrant terracotta gradient
   },
 } as const;
 
@@ -50,42 +57,49 @@ export const borderRadius = {
   sm: 8,
   md: 12,
   lg: 16,
-  xl: 24, // Smoother corners for premium look
+  xl: 24,
   xxl: 32,
   full: 999,
 } as const;
 
 export const typography = {
-  h1: { fontSize: 32, fontWeight: "800" as const, lineHeight: 40, letterSpacing: -0.5 },
-  h2: { fontSize: 24, fontWeight: "700" as const, lineHeight: 30, letterSpacing: -0.3 },
-  h3: { fontSize: 20, fontWeight: "600" as const, lineHeight: 28 },
-  body: { fontSize: 16, fontWeight: "400" as const, lineHeight: 24 },
-  bodyMedium: { fontSize: 16, fontWeight: "500" as const, lineHeight: 24 },
-  bodySmall: { fontSize: 14, fontWeight: "400" as const, lineHeight: 20 },
-  caption: { fontSize: 12, fontWeight: "500" as const, lineHeight: 16 },
-  button: { fontSize: 16, fontWeight: "600" as const, lineHeight: 24 },
+  h1: { fontFamily: "System", fontSize: 34, fontWeight: "800" as const, lineHeight: 42, letterSpacing: -0.8 },
+  h2: { fontFamily: "System", fontSize: 26, fontWeight: "700" as const, lineHeight: 32, letterSpacing: -0.5 },
+  h3: { fontFamily: "System", fontSize: 20, fontWeight: "600" as const, lineHeight: 28, letterSpacing: -0.2 },
+  body: { fontFamily: "System", fontSize: 16, fontWeight: "400" as const, lineHeight: 24, letterSpacing: 0.2 },
+  bodyMedium: { fontFamily: "System", fontSize: 16, fontWeight: "500" as const, lineHeight: 24, letterSpacing: 0.2 },
+  bodySmall: { fontFamily: "System", fontSize: 14, fontWeight: "400" as const, lineHeight: 20, letterSpacing: 0.1 },
+  caption: { fontFamily: "System", fontSize: 12, fontWeight: "600" as const, lineHeight: 16, letterSpacing: 0.5, textTransform: "uppercase" as const },
+  button: { fontFamily: "System", fontSize: 16, fontWeight: "700" as const, lineHeight: 24, letterSpacing: 0.3 },
 } as const;
 
 export const shadows = {
   soft: {
-    shadowColor: "#2563EB",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.03,
-    shadowRadius: 20,
-    elevation: 2,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 3,
   },
   medium: {
-    shadowColor: "#0F172A",
-    shadowOffset: { width: 0, height: 15 },
-    shadowOpacity: 0.06,
-    shadowRadius: 30,
-    elevation: 5,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 6,
   },
   premium: {
-    shadowColor: "#2563EB",
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.08,
-    shadowRadius: 40,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 15 },
+    shadowOpacity: 0.4,
+    shadowRadius: 30,
     elevation: 10,
   },
+  glow: {
+    shadowColor: "#E16D54",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.35,
+    shadowRadius: 18,
+    elevation: 8,
+  }
 } as const;

@@ -28,11 +28,11 @@ export function SearchBar({
 }: SearchBarProps) {
   return (
     <View style={styles.wrapper}>
-      <BlurView intensity={100} tint="light" style={styles.container}>
+      <BlurView intensity={60} tint="dark" style={styles.container}>
         <Ionicons
           name="chatbubble-ellipses-outline"
           size={20}
-          color={colors.primary}
+          color={colors.secondary}
           style={styles.icon}
         />
         <TextInput
@@ -40,7 +40,7 @@ export function SearchBar({
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={colors.textTertiary}
+          placeholderTextColor={colors.textSecondary}
           multiline={false}
           returnKeyType="send"
           onSubmitEditing={onSubmit}
@@ -77,9 +77,9 @@ const styles = StyleSheet.create({
     paddingVertical: Platform.OS === "ios" ? spacing.sm : 2,
     borderWidth: 1,
     borderColor: colors.borderLight,
-    ...shadows.premium,
+    ...shadows.glow,
     overflow: "hidden",
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    backgroundColor: colors.glassDark,
   },
   icon: {
     marginLeft: spacing.sm,
@@ -95,10 +95,11 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     justifyContent: "center",
     alignItems: "center",
     marginLeft: spacing.sm,
+    ...shadows.glow,
   },
   actionDisabled: {
     backgroundColor: colors.textTertiary,
