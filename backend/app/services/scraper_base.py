@@ -7,6 +7,7 @@ HTTP istekleri, HTML parse etme ve hata yönetimi burada merkezileştirilir.
 from abc import ABC, abstractmethod
 from typing import Any
 
+import asyncio
 import httpx
 from bs4 import BeautifulSoup
 from loguru import logger
@@ -30,21 +31,35 @@ class BaseScraper(ABC):
     async def _fetch_page(self, url: str) -> BeautifulSoup | None:
         """Bir sayfayı indirir ve BeautifulSoup nesnesi döner."""
         full_url = url if url.startswith("http") else f"{self.BASE_URL}{url}"
-        try:
-            async with httpx.AsyncClient(
-                timeout=self.timeout,
-                headers=self.headers,
-                follow_redirects=True,
-            ) as client:
-                resp = await client.get(full_url)
-                resp.raise_for_status()
-                return BeautifulSoup(resp.text, "lxml")
-        except httpx.HTTPError as e:
-            logger.error(f"Scraper HTTP hatası: {full_url} → {e}")
-            return None
-        except Exception as e:
-            logger.error(f"Scraper genel hata: {full_url} → {e}")
-            return None
+        max_attempts = 3
+        for attempt in range(1, max_attempts + 1):
+            try:
+                async with httpx.AsyncClient(
+                    timeout=self.timeout,
+                    headers=self.headers,
+                    follow_redirects=True,
+                ) as client:
+                    resp = await client.get(full_url)
+                    resp.raise_for_status()
+                    return BeautifulSoup(resp.text, "lxml")
+            except httpx.HTTPError as e:
+                if attempt == max_attempts:
+                    logger.error(f"Scraper HTTP hatası: {full_url} → {e}")
+                    return None
+                logger.warning(
+                    f"Scraper deneme {attempt}/{max_attempts} başarısız ({full_url}): {e}"
+                )
+            except Exception as e:
+                if attempt == max_attempts:
+                    logger.error(f"Scraper genel hata: {full_url} → {e}")
+                    return None
+                logger.warning(
+                    f"Scraper deneme {attempt}/{max_attempts} başarısız ({full_url}): {e}"
+                )
+
+            await asyncio.sleep(1.5 * attempt)
+
+        return None
 
     @abstractmethod
     async def scrape(self, **kwargs) -> list[dict[str, Any]]:

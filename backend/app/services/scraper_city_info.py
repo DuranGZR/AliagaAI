@@ -10,6 +10,8 @@ from loguru import logger
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
+from app.services.chunking import chunk_text, content_hash
 from app.services.scraper_base import BaseScraper
 
 # pgvector opsiyonel
@@ -51,21 +53,25 @@ class CityInfoScraper(BaseScraper):
                 logger.warning(f"Sayfa çekilemedi: {page['url']}")
                 continue
 
-            # İçerik alanını bul
-            content_el = soup.select_one(
-                ".icerik, .content, main article, .page-content, .detail-content, .entry-content"
-            )
-            if not content_el:
-                # Tüm main veya body'den dene
-                content_el = soup.select_one("main, .main-content")
+            # Gereksiz kısımları HTML'den tamamen kopar
+            for el in soup.select("script, style, nav, footer, header, .breadcrumb, .social-share, iframe, ul.menu, #menu"):
+                el.decompose()
 
-            if content_el:
-                # Gereksiz elemanları temizle
-                for el in content_el.select("script, style, nav, footer, header, .breadcrumb, .social-share"):
-                    el.decompose()
-                text = self.clean_text(content_el.get_text())
+            # Yeni ve daha sağlam hedef: Tüm p etiketlerini veya büyük div içindeki metinleri topla
+            text_blocks = []
+            paragraphs = soup.find_all("p")
+            if paragraphs:
+                for p in paragraphs:
+                    p_text = self.clean_text(p.get_text(separator=' '))
+                    if len(p_text) > 40:  # Navigasyon parçalarını vs ele
+                        text_blocks.append(p_text)
+                text = " ".join(text_blocks)
             else:
                 text = ""
+
+            # Eğer p tagleri kullanmamışlarsa (sadece text nodes ise), body'den çek
+            if len(text) < 50 and soup.body:
+                text = self.clean_text(soup.body.get_text(separator=' '))
 
             if len(text) < 50:
                 logger.warning(f"Çok kısa içerik ({len(text)} karakter): {page['url']}")
@@ -80,34 +86,6 @@ class CityInfoScraper(BaseScraper):
 
         logger.info(f"Şehir bilgisi: {len(results)}/{len(CITY_INFO_PAGES)} sayfa çekildi.")
         return results
-
-
-def chunk_text(text: str, chunk_size: int = 800, overlap: int = 100) -> list[str]:
-    """Metni belirtilen boyutta parçalara böler (overlap ile)."""
-    if len(text) <= chunk_size:
-        return [text]
-
-    chunks = []
-    start = 0
-    while start < len(text):
-        end = start + chunk_size
-        chunk = text[start:end]
-
-        # Cümle sınırında kes (son nokta, soru işareti veya ünlem)
-        if end < len(text):
-            last_period = max(
-                chunk.rfind("."),
-                chunk.rfind("?"),
-                chunk.rfind("!"),
-            )
-            if last_period > chunk_size * 0.5:
-                chunk = chunk[: last_period + 1]
-                end = start + last_period + 1
-
-        chunks.append(chunk.strip())
-        start = end - overlap
-
-    return [c for c in chunks if c]
 
 
 async def scrape_and_save_city_info(
@@ -133,26 +111,35 @@ async def scrape_and_save_city_info(
 
     total_chunks = 0
     for page in pages:
-        chunks = chunk_text(page["content"])
+        chunks = chunk_text(
+            page["content"],
+            chunk_size=settings.CHUNK_SIZE,
+            overlap=settings.CHUNK_OVERLAP,
+            min_length=settings.CHUNK_MIN_LENGTH,
+        )
+        page_hash = content_hash(page["content"])
         for i, chunk_content in enumerate(chunks):
-            embedding = None
-            if embedding_fn:
-                try:
-                    embedding = await embedding_fn(chunk_content)
-                except Exception as e:
-                    logger.warning(f"Embedding hatası: {e}")
+            if not embedding_fn:
+                continue
+            try:
+                embedding = await embedding_fn(chunk_content)
+            except Exception as e:
+                logger.warning(f"Embedding hatası (city_info chunk atlandı): {e}")
+                continue
 
             doc = DocumentChunk(
                 source_type="city_info",
                 source_id=None,
                 chunk_index=i,
                 content=chunk_content,
-                embedding=embedding or [0.0] * 384,  # placeholder if no embedding
+                embedding=embedding,
                 metadata_json={
                     "title": page["title"],
                     "url": page["url"],
                     "chunk_index": i,
                     "total_chunks": len(chunks),
+                    "content_hash": page_hash,
+                    "embedding_model": settings.EMBEDDING_MODEL,
                 },
             )
             session.add(doc)

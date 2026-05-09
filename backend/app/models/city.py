@@ -7,8 +7,8 @@ DocumentChunk → pgvector tablosu (RAG Only / Hybrid aramalar için)
 import uuid
 from datetime import date, datetime, time
 
-from sqlalchemy import Boolean, Float, Index, Integer, String, Text, Time
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import Boolean, Float, Index, Integer, String, Text, Time, UniqueConstraint
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -128,6 +128,20 @@ class PostalCode(Base):
     )
 
 
+class CityKnowledge(Base):
+    __tablename__ = "city_knowledge"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    layer: Mapped[str] = mapped_column(String(30), nullable=False)  # gezi | ulasim | gastronomi | kurumlar
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    neighborhood: Mapped[str | None] = mapped_column(String(100))
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    tags: Mapped[list | None] = mapped_column(ARRAY(Text))
+    source_url: Mapped[str] = mapped_column(Text, nullable=False)
+    last_verified_at: Mapped[date] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now())
+
+
 # ═════════════════════════════════════════════
 # SU / ELEKTRİK KESİNTİLERİ (SQL + RAG hibrit)
 # ═════════════════════════════════════════════
@@ -169,6 +183,10 @@ if HAS_PGVECTOR:
         metadata_json: Mapped[dict | None] = mapped_column(JSONB)
         created_at: Mapped[datetime] = mapped_column(
             default=func.now(), server_default=func.now()
+        )
+
+        __table_args__ = (
+            UniqueConstraint("source_type", "source_id", "chunk_index", name="uix_source_chunk"),
         )
 
     # pgvector indeksleri
