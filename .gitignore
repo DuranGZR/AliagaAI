@@ -76,6 +76,10 @@ nul
 memory-bank/
 logs/
 .gemini/
+.agent/
+.graphifyignore
+graphify-out/
+reports/
 agent.md
 implementation_plan.md
 task.md

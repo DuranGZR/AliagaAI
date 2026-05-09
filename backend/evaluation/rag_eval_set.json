@@ -1,0 +1,1382 @@
+[
+  {
+    "question": "Aliağa Balıkevi hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde Aliağa Balıkevi gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "İzzet Usta Et & Balık hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde İzzet Usta Et & Balık gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Deniz'in Mutfağı hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde Deniz'in Mutfağı gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Chef Âlâ Ocakbaşı hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde Chef Âlâ Ocakbaşı gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Pasha Mangalbaşı hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde Pasha Mangalbaşı gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Azim Pide hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde Azim Pide gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Konyalı Mirzaoğlu hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde Konyalı Mirzaoğlu gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Seyir Cafe & Restaurant hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "kafe kategorisinde Seyir Cafe & Restaurant gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aigai Antik Kenti hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "turistik kategorisinde Aigai Antik Kenti gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Kyme Antik Kenti hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "turistik kategorisinde Kyme Antik Kenti gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Gryneion Apollon Tapınağı hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "turistik kategorisinde Gryneion Apollon Tapınağı gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Arkeoloji Müzesi hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "turistik kategorisinde Aliağa Arkeoloji Müzesi gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Yeni Şakran Sahili hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "turistik kategorisinde Yeni Şakran Sahili gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Sahil Parkı hakkında bilgi verir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "turistik kategorisinde Sahil Parkı gibi bir yer önerir misin?",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Kaymakamlığı nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "kamu kategorisinde kurum önerir misin?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Nüfus Müdürlüğü nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Tapu Müdürlüğü nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Vergi Dairesi nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "SGK Aliağa Merkez Müdürlüğü nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Devlet Hastanesi nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "saglik kategorisinde kurum önerir misin?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Mesleki ve Teknik Anadolu Lisesi nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "egitim kategorisinde kurum önerir misin?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Anadolu Lisesi nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Yurtiçi Kargo Aliağa Şubesi nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "kargo kategorisinde kurum önerir misin?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aras Kargo Aliağa Şubesi nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "MNG Kargo Aliağa Şubesi nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "PTT Aliağa Şubesi nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Sürat Kargo Aliağa Şubesi nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa 1. Noterliği nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "noter kategorisinde kurum önerir misin?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa 2. Noterliği nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "TÜVTÜRK Aliağa Araç Muayene İstasyonu nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "arac_muayene kategorisinde kurum önerir misin?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Gençlik Merkezi (AGM) nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "spor kategorisinde kurum önerir misin?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Spor ve Yaşam Merkezi nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "ASEV (Aliağa Sanat Evi) nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "kultur kategorisinde kurum önerir misin?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Zeytinli Park Açıkhava Etkinlik Alanı nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Kent Kitaplığı nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "kutuphane kategorisinde kurum önerir misin?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aziz Sancar Kütüphanesi nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Nadir Nadi Kütüphanesi nerede?",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa’da 23 Nisan Çocuk Bayramı Coşkuyla Kutlandı' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Başkan Serkan Acar 23 Nisan’da Koltuğunu Devretti' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa Belediyesi’nden Çocuklara 23 Nisan Armağanı “Ali ve Ece – Yaşasın 23 Nisan” Yayımlandı' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa’da At-Çek Balık Avı Festivali Coşkusu Yaşandı' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aşık Veysel Türküleri Aliağa’da Yankılandı' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa Belediyesi’nde Promosyon İhalesi Sonuçlandı: Tüm Personele Eşit Ödeme' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'23 Nisan Aliağa’da Etkinliklerle Kutlanacak' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Türk Polis Teşkilatı’nın 181’inci Yıl Dönümü Aliağa’da Kutlandı' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa Belediyesi Meclisi Nisan Ayı Birinci Birleşimi Yapıldı' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa Belediyesi Nisan Meclisi Toplanıyor' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliaport Düzenli Seferlerine Başladı' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa’da 30. Geleneksel KYME Satranç Turnuvası Başlıyor' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Atatürk’ün Aliağa’ya Gelişinin 92’nci Yılı Kutlandı' haberiyle ilgili özet verir misin?",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Spor ve Yaşam Merkezi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Greenpark- Aliağa Botanik Bahçesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Alia Park, Atla Terapi ve Rehabilitasyon Merkezi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Mola Aliağa Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Patipark Hayvan Bakım ve Rehabilitasyon Merkezi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Güzelhisar Sosyal Tesisleri Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Şehit P. Yzb. Oğuz Ö. Çevik Parkı projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "İstiklal ve Hükümet Caddelerini Yenileme Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Yeni Mahalle KENTPARK Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Helvacı Kapalı Pazaryeri projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Gençlik Merkezi Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Halı Saha Tesislerimiz projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Işıklı Kent Görselleri projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Sanat Sokağı projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "İzmir Caddesi Yenileme Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Avcı Ramadan projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Ağapark Plaj Tesisleri Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Yenişakran Sahil Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Kent Aydınlatmaları projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Dijital Arşiv Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Coğrafi Bilgi Sistemleri (CBS) Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Mekânsal Adres Kayıt Sistemi (MAKS) Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Marka Kent Aliağa Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aigai Antik Kenti Turizm Destek Projesi projesinin durumu nedir?",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa'da Mars'a uçuş bileti ne kadar?",
+    "expected_source_types": [],
+    "expect_no_answer": true
+  },
+  {
+    "question": "Aliağa belediyesi bugün uzay asansörü açtı mı?",
+    "expected_source_types": [],
+    "expect_no_answer": true
+  },
+  {
+    "question": "Aliağa'da Hogwarts kampüsü var mı?",
+    "expected_source_types": [],
+    "expect_no_answer": true
+  },
+  {
+    "question": "Yeni çıkan iPhone modelinin teknik özellikleri nedir?",
+    "expected_source_types": [],
+    "expect_no_answer": true
+  },
+  {
+    "question": "Dünya kupasını kim kazandı?",
+    "expected_source_types": [],
+    "expect_no_answer": true
+  },
+  {
+    "question": "Aliağa'da ejderha turu var mı?",
+    "expected_source_types": [],
+    "expect_no_answer": true
+  },
+  {
+    "question": "Kripto para yatırım tavsiyesi verir misin?",
+    "expected_source_types": [],
+    "expect_no_answer": true
+  },
+  {
+    "question": "Aliağa'da 1800 yılındaki canlı trafik durumu nedir?",
+    "expected_source_types": [],
+    "expect_no_answer": true
+  },
+  {
+    "question": "Uzaylı istilası için belediye planı var mı?",
+    "expected_source_types": [],
+    "expect_no_answer": true
+  },
+  {
+    "question": "Yarın Ay'da hava nasıl olacak?",
+    "expected_source_types": [],
+    "expect_no_answer": true
+  },
+  {
+    "question": "Aliağa Balıkevi hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde Aliağa Balıkevi gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "İzzet Usta Et & Balık hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde İzzet Usta Et & Balık gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Deniz'in Mutfağı hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde Deniz'in Mutfağı gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Chef Âlâ Ocakbaşı hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde Chef Âlâ Ocakbaşı gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Pasha Mangalbaşı hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde Pasha Mangalbaşı gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Azim Pide hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde Azim Pide gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Konyalı Mirzaoğlu hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "restoran kategorisinde Konyalı Mirzaoğlu gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Seyir Cafe & Restaurant hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "kafe kategorisinde Seyir Cafe & Restaurant gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aigai Antik Kenti hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "turistik kategorisinde Aigai Antik Kenti gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Kyme Antik Kenti hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "turistik kategorisinde Kyme Antik Kenti gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Gryneion Apollon Tapınağı hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "turistik kategorisinde Gryneion Apollon Tapınağı gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Arkeoloji Müzesi hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "turistik kategorisinde Aliağa Arkeoloji Müzesi gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Yeni Şakran Sahili hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "turistik kategorisinde Yeni Şakran Sahili gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Sahil Parkı hakkında bilgi verir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "turistik kategorisinde Sahil Parkı gibi bir yer önerir misin? (detaylı)",
+    "expected_source_types": [
+      "place"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Kaymakamlığı nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "kamu kategorisinde kurum önerir misin? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Nüfus Müdürlüğü nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Tapu Müdürlüğü nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Vergi Dairesi nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "SGK Aliağa Merkez Müdürlüğü nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Devlet Hastanesi nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "saglik kategorisinde kurum önerir misin? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Mesleki ve Teknik Anadolu Lisesi nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "egitim kategorisinde kurum önerir misin? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Anadolu Lisesi nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Yurtiçi Kargo Aliağa Şubesi nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "kargo kategorisinde kurum önerir misin? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aras Kargo Aliağa Şubesi nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "MNG Kargo Aliağa Şubesi nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "PTT Aliağa Şubesi nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Sürat Kargo Aliağa Şubesi nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa 1. Noterliği nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "noter kategorisinde kurum önerir misin? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa 2. Noterliği nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "TÜVTÜRK Aliağa Araç Muayene İstasyonu nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "arac_muayene kategorisinde kurum önerir misin? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Gençlik Merkezi (AGM) nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "spor kategorisinde kurum önerir misin? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Spor ve Yaşam Merkezi nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "ASEV (Aliağa Sanat Evi) nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "kultur kategorisinde kurum önerir misin? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Zeytinli Park Açıkhava Etkinlik Alanı nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Kent Kitaplığı nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "kutuphane kategorisinde kurum önerir misin? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aziz Sancar Kütüphanesi nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Nadir Nadi Kütüphanesi nerede? (detaylı)",
+    "expected_source_types": [
+      "institution"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa’da 23 Nisan Çocuk Bayramı Coşkuyla Kutlandı' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Başkan Serkan Acar 23 Nisan’da Koltuğunu Devretti' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa Belediyesi’nden Çocuklara 23 Nisan Armağanı “Ali ve Ece – Yaşasın 23 Nisan” Yayımlandı' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa’da At-Çek Balık Avı Festivali Coşkusu Yaşandı' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aşık Veysel Türküleri Aliağa’da Yankılandı' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa Belediyesi’nde Promosyon İhalesi Sonuçlandı: Tüm Personele Eşit Ödeme' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'23 Nisan Aliağa’da Etkinliklerle Kutlanacak' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Türk Polis Teşkilatı’nın 181’inci Yıl Dönümü Aliağa’da Kutlandı' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa Belediyesi Meclisi Nisan Ayı Birinci Birleşimi Yapıldı' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa Belediyesi Nisan Meclisi Toplanıyor' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliaport Düzenli Seferlerine Başladı' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Aliağa’da 30. Geleneksel KYME Satranç Turnuvası Başlıyor' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "'Atatürk’ün Aliağa’ya Gelişinin 92’nci Yılı Kutlandı' haberiyle ilgili özet verir misin? (detaylı)",
+    "expected_source_types": [
+      "news"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Spor ve Yaşam Merkezi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Greenpark- Aliağa Botanik Bahçesi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Alia Park, Atla Terapi ve Rehabilitasyon Merkezi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Mola Aliağa Projesi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Patipark Hayvan Bakım ve Rehabilitasyon Merkezi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Güzelhisar Sosyal Tesisleri Projesi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Şehit P. Yzb. Oğuz Ö. Çevik Parkı projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "İstiklal ve Hükümet Caddelerini Yenileme Projesi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Yeni Mahalle KENTPARK Projesi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Helvacı Kapalı Pazaryeri projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Aliağa Gençlik Merkezi Projesi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Halı Saha Tesislerimiz projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Işıklı Kent Görselleri projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Sanat Sokağı projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "İzmir Caddesi Yenileme Projesi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Avcı Ramadan projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Ağapark Plaj Tesisleri Projesi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Yenişakran Sahil Projesi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Kent Aydınlatmaları projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  },
+  {
+    "question": "Dijital Arşiv Projesi projesinin durumu nedir? (detaylı)",
+    "expected_source_types": [
+      "project"
+    ],
+    "expect_no_answer": false
+  }
+]

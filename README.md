@@ -134,3 +134,65 @@ npx expo start
 ## Lisans
 
 Bu proje tüm hakları saklı olarak geliştirilmiştir. İzinsiz paylaşımı ve kullanımı yasaktır.
+
+## Docker Quick Start (Full Integration)
+
+This project is now Docker-ready for `postgres + backend + frontend`.
+
+### 1) Prepare env file
+
+Create `.env` in repo root (copy from `.env.example`) and set at least:
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+COLLECTAPI_KEY=your_collectapi_key_here
+```
+
+### 2) Start all services
+
+```bash
+docker compose up --build
+```
+
+- PostgreSQL (pgvector): `localhost:5432`
+- FastAPI backend: `http://localhost:8000`
+- Expo web frontend: `http://localhost:19006`
+
+### 3) Start services separately
+
+```bash
+# only database
+docker compose up -d postgres
+
+# database + backend
+docker compose up -d postgres backend
+
+# only frontend (expects backend already running)
+docker compose up frontend
+```
+
+### 4) Stop / cleanup
+
+```bash
+# stop services
+docker compose down
+
+# stop and remove database volume
+docker compose down -v
+```
+
+### 5) Quick health checks
+
+```bash
+# backend health
+curl http://localhost:8000/api/v1/health/
+
+# backend docs
+http://localhost:8000/docs
+```
+
+### Notes
+
+- Frontend API base URL comes from `EXPO_PUBLIC_API_BASE_URL`.
+- Default is `http://localhost:8000/api/v1` for Docker web flow.
+- For physical mobile testing with Expo Go, set `EXPO_PUBLIC_API_BASE_URL` to your host machine LAN IP.

@@ -1,3 +1,5 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 fastapi
 uvicorn[standard]
 pydantic>=2.0
@@ -5,6 +7,7 @@ pydantic-settings
 sqlalchemy[asyncio]
 asyncpg
 pgvector
+torch==2.7.1+cpu; platform_system == "Linux"
 sentence-transformers
 groq
 httpx

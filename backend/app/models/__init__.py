@@ -28,6 +28,15 @@ from app.models.city import (  # noqa: F401
     EmergencyContact,
     TaxiStand,
     PostalCode,
+    CityKnowledge,
     UtilityOutage,
     DocumentChunk,
+)
+from app.models.knowledge_layers import (  # noqa: F401
+    TransportRoute,
+    TransportStop,
+    TransportDeparture,
+    PoiCatalog,
+    MunicipalService,
+    DistrictStat,
 )
