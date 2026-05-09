@@ -1,11 +1,10 @@
-"""Pydantic şemaları — Şehir/ulaşım modelleri."""
+"""Pydantic schemas for city and transport models."""
 from datetime import datetime, time
 from typing import Optional
 
 from pydantic import BaseModel
 
 
-# ── İZBAN ─────────────────────────────────────
 class IzbanScheduleResponse(BaseModel):
     id: int
     line: Optional[str] = None
@@ -17,7 +16,6 @@ class IzbanScheduleResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Feribot ───────────────────────────────────
 class FerryScheduleResponse(BaseModel):
     id: int
     route: str
@@ -33,7 +31,6 @@ class FerryScheduleResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Semt Pazarı ───────────────────────────────
 class StreetMarketResponse(BaseModel):
     id: int
     name: str
@@ -45,7 +42,6 @@ class StreetMarketResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Acil Telefon ──────────────────────────────
 class EmergencyContactResponse(BaseModel):
     id: int
     name: str
@@ -57,7 +53,6 @@ class EmergencyContactResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Taksi ─────────────────────────────────────
 class TaxiStandResponse(BaseModel):
     id: int
     name: str
@@ -70,7 +65,6 @@ class TaxiStandResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Posta Kodu ────────────────────────────────
 class PostalCodeResponse(BaseModel):
     id: int
     neighborhood: str
@@ -80,7 +74,6 @@ class PostalCodeResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Kesinti ───────────────────────────────────
 class UtilityOutageResponse(BaseModel):
     id: int
     type: str
@@ -93,3 +86,12 @@ class UtilityOutageResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class IzbanSummaryResponse(BaseModel):
+    total_records: int
+    next_departure: Optional[str] = None
+    status: str
+    message: str
+    updated_at: Optional[datetime] = None
+

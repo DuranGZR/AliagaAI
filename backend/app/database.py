@@ -15,8 +15,8 @@ from app.core.config import settings
 engine = create_async_engine(
     settings.async_database_url,
     echo=settings.DEBUG,
-    pool_size=5,
-    max_overflow=10,
+    pool_size=20,
+    max_overflow=20,
     pool_pre_ping=True,
 )
 
@@ -67,10 +67,11 @@ async def init_db():
                 "Diger tum tablolar normal calisacak."
             )
         # Tüm modelleri import ederek metadata'ya kayıt ol
-        from app.models import cache, city, content, places  # noqa: F401
+        from app.models import cache, city, content, places, knowledge_layers  # noqa: F401
         await conn.run_sync(Base.metadata.create_all)
 
 
 async def close_db():
     """Uygulama kapanırken engine'i düzgünce kapat."""
     await engine.dispose()
+

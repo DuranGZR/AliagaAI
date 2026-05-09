@@ -1,4 +1,4 @@
-"""Şema paketi — Tüm Pydantic modellerini dışa aktarır."""
+"""Schema package exports all Pydantic models."""
 from app.schemas.cache import (  # noqa: F401
     WeatherResponse,
     PrayerTimesResponse,
@@ -30,9 +30,11 @@ from app.schemas.city import (  # noqa: F401
     TaxiStandResponse,
     PostalCodeResponse,
     UtilityOutageResponse,
+    IzbanSummaryResponse,
 )
 from app.schemas.chat import (  # noqa: F401
     ChatRequest,
     ChatResponse,
     SourceReference,
 )
+
