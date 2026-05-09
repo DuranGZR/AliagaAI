@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { BlurView } from "expo-blur";
-import { colors, spacing, borderRadius, typography, shadows } from "../theme";
+import { Ionicons } from "@expo/vector-icons";
+import { colors, spacing, borderRadius, typography } from "../theme";
 
 interface ChatBubbleProps {
   role: "user" | "assistant";
@@ -23,9 +23,15 @@ export function ChatBubble({ role, content }: ChatBubbleProps) {
 
   return (
     <View style={styles.row}>
-      <BlurView intensity={30} tint="light" style={[styles.bubble, styles.bubbleAssistant]}>
+      <View style={styles.assistantContainer}>
+        {/* AI Badge */}
+        <View style={styles.aiBadge}>
+          <Ionicons name="hardware-chip" size={14} color={colors.primary} />
+          <Text style={styles.aiBadgeText}>ALİAĞA DOSTU</Text>
+        </View>
+        {/* Mesaj */}
         <Text style={[styles.text, styles.textAssistant]}>{content}</Text>
-      </BlurView>
+      </View>
     </View>
   );
 }
@@ -46,25 +52,36 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
   },
   bubbleUser: {
-    backgroundColor: colors.secondary, // Terracotta for user
+    backgroundColor: colors.userBubble,
     borderBottomRightRadius: 4,
-    ...shadows.glow,
   },
-  bubbleAssistant: {
-    backgroundColor: colors.glassDark,
-    borderBottomLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...shadows.soft,
-    overflow: "hidden",
+  assistantContainer: {
+    maxWidth: "90%",
+    paddingRight: spacing.md,
+    padding: spacing.md,
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderRadius: borderRadius.md,
+    borderLeftWidth: 2,
+    borderLeftColor: colors.primary,
+  },
+  aiBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  aiBadgeText: {
+    ...typography.captionSmall,
+    color: colors.primary,
+    fontWeight: "700",
+    letterSpacing: 1,
   },
   text: {
     ...typography.body,
-    lineHeight: 22,
+    lineHeight: 24,
   },
   textUser: {
-    color: colors.textInverse,
-    fontWeight: "600",
+    color: colors.text,
   },
   textAssistant: {
     color: colors.text,

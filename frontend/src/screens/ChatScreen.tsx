@@ -1,215 +1,297 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  View,
+  ActivityIndicator,
   FlatList,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
   Text,
-  ActivityIndicator,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { useRoute } from "@react-navigation/native";
 
-import { SearchBar } from "../components/SearchBar";
-import { ChatBubble } from "../components/ChatBubble";
-import { PlaceCard } from "../components/PlaceCard";
+import { AppHeader } from "../components/AppHeader";
 import { chatService } from "../services/api";
-import { ChatMessage } from "../types";
-import { colors, spacing, typography, borderRadius } from "../theme";
+import { ChatMessage, ConversationTurn } from "../types";
+import { borderRadius, colors, spacing, typography } from "../theme";
+
+type RouteParams = {
+  presetPrompt?: string;
+};
+
+function toHistory(messages: ChatMessage[]): ConversationTurn[] {
+  return messages
+    .filter((m) => m.id !== "welcome")
+    .map((m) => ({ role: m.role, content: m.content }))
+    .slice(-10);
+}
 
 export function ChatScreen() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const route = useRoute();
+  const params = (route.params || {}) as RouteParams;
+
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: "welcome",
+      role: "assistant",
+      content: "Size nasıl yardımcı olabilirim?",
+      timestamp: new Date(),
+    },
+  ]);
+  const messagesRef = useRef<ChatMessage[]>(messages);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const flatListRef = useRef<FlatList>(null);
+  const [presetHandled, setPresetHandled] = useState(false);
+  const listRef = useRef<FlatList>(null);
 
-  const handleSend = useCallback(async () => {
-    const query = input.trim();
-    if (!query || loading) return;
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
-    const userMsg: ChatMessage = {
-      id: Date.now().toString(),
-      role: "user",
-      content: query,
-      timestamp: new Date(),
-    };
+  const addMessage = useCallback((message: ChatMessage) => {
+    setMessages((prev) => {
+      const next = [...prev, message];
+      messagesRef.current = next;
+      return next;
+    });
+  }, []);
 
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setLoading(true);
+  const sendQuery = useCallback(
+    async (raw: string) => {
+      const query = raw.trim();
+      if (!query || loading) return;
 
-    try {
-      const response = await chatService.send(query);
-      const assistantMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: response.ai_response || "Aradığın bilgiye şu an ulaşamadım, ama Aliağa hakkında sormaya devam edebilirsin.",
-        timestamp: new Date(),
-        results: response.results,
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
-    } catch {
-      const errorMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: "Bağlantıda küçük bir aksaklık oldu. Lütfen tekrar dener misin?",
+      const userMsg: ChatMessage = {
+        id: `${Date.now()}-u`,
+        role: "user",
+        content: query,
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, errorMsg]);
-    } finally {
-      setLoading(false);
-    }
-  }, [input, loading]);
+      addMessage(userMsg);
+      setInput("");
+      setLoading(true);
+
+      try {
+        const history = toHistory([...messagesRef.current, userMsg]);
+        const response = await chatService.send(query, history);
+        const answer =
+          (response as any).answer ||
+          (response as any).ai_response ||
+          "Aradığın bilgiye şu an ulaşamadım ama birlikte tekrar deneyebiliriz.";
+
+        addMessage({
+          id: `${Date.now()}-a`,
+          role: "assistant",
+          content: answer,
+          timestamp: new Date(),
+          results: ((response as any).sources || (response as any).results || []) as any,
+        });
+      } catch {
+        addMessage({
+          id: `${Date.now()}-e`,
+          role: "assistant",
+          content: "Bağlantıda kısa bir aksaklık oldu. Tekrar dener misin?",
+          timestamp: new Date(),
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [addMessage, loading]
+  );
+
+  useEffect(() => {
+    if (!params.presetPrompt || presetHandled) return;
+    setPresetHandled(true);
+    sendQuery(params.presetPrompt);
+  }, [params.presetPrompt, presetHandled, sendQuery]);
+
+  const onSend = useCallback(() => {
+    sendQuery(input);
+  }, [input, sendQuery]);
 
   const renderItem = useCallback(({ item }: { item: ChatMessage }) => {
-    return (
-      <View style={styles.messageWrapper}>
-        <ChatBubble role={item.role} content={item.content} />
-        {item.results && item.results.length > 0 && (
-          <View style={styles.resultsContainer}>
-            {item.results.slice(0, 3).map((result, index) => (
-              <PlaceCard
-                key={`${item.id}-${index}`}
-                name={result.name || result.title || "—"}
-                category={result.category}
-                address={result.address}
-                phone={result.phone}
-                rating={result.rating}
-                tags={result.tags}
-                maps_link={result.maps_link}
-              />
-            ))}
+    const isUser = item.role === "user";
+
+    if (isUser) {
+      return (
+        <View style={styles.userRow}>
+          <View style={styles.userBubble}>
+            <Text style={styles.userText}>{item.content}</Text>
           </View>
-        )}
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.assistantWrap}>
+        <View style={styles.assistantBadge}>
+          <Ionicons name="hardware-chip" size={14} color={colors.primary} />
+          <Text style={styles.assistantBadgeText}>ALİAĞAİ</Text>
+        </View>
+        <Text style={styles.assistantText}>{item.content}</Text>
       </View>
     );
   }, []);
 
-  return (
-    <LinearGradient
-      colors={colors.gradients.bg as any}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea} edges={["top"]}>
-        <View style={styles.header}>
-            <View>
-                <Text style={styles.title}>Aliağa asistanı</Text>
-                <Text style={styles.subtitle}>Sohbet Geçmişi</Text>
-            </View>
-        </View>
+  const hasConversation = useMemo(
+    () => messages.some((m) => m.id !== "welcome"),
+    [messages]
+  );
 
-        {messages.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="chatbubble-ellipses-outline" size={64} color={colors.textTertiary} />
-            <Text style={styles.emptyTitle}>Sohbet Başlasın</Text>
-            <Text style={styles.emptySubtitle}>
-              Aliağa hakkında ne öğrenmek istersin? Restoranlar, tarihi alanlar veya eczaneler...
-            </Text>
-          </View>
-        ) : (
+  return (
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+        <AppHeader />
+
+        <View style={styles.listWrap}>
           <FlatList
-            ref={flatListRef}
+            ref={listRef}
             data={messages}
-            renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContent}
+            renderItem={renderItem}
             showsVerticalScrollIndicator={false}
-            onContentSizeChange={() =>
-              flatListRef.current?.scrollToEnd({ animated: true })
+            contentContainerStyle={styles.listContent}
+            onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
+            ListFooterComponent={
+              loading ? (
+                <View style={styles.loadingRow}>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                </View>
+              ) : null
             }
           />
-        )}
 
-        {loading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="small" color={colors.primary} />
-            <Text style={styles.loadingText}>Asistan araştırıyor...</Text>
-          </View>
-        )}
+          {!hasConversation && <View style={styles.emptySpacer} />}
+        </View>
 
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : undefined}
           keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-          style={styles.inputArea}
+          style={styles.inputContainer}
         >
-          <SearchBar
-            value={input}
-            onChangeText={setInput}
-            onSubmit={handleSend}
-            loading={loading}
-          />
+          <View style={styles.inputWrap}>
+            <TextInput
+              value={input}
+              onChangeText={setInput}
+              placeholder="Asistan'a bir şey söyle..."
+              placeholderTextColor={colors.textTertiary}
+              style={styles.input}
+              onSubmitEditing={onSend}
+              returnKeyType="send"
+              editable={!loading}
+            />
+          </View>
+          <TouchableOpacity
+            style={[styles.sendBtn, (!input.trim() || loading) && styles.sendBtnDisabled]}
+            onPress={onSend}
+            disabled={!input.trim() || loading}
+          >
+            <Ionicons name="arrow-up" size={30} color={colors.textInverse} />
+          </TouchableOpacity>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   safeArea: {
     flex: 1,
   },
-  header: {
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.lg,
-    alignItems: "center",
-  },
-  title: {
-    ...typography.h2,
-    color: colors.text,
-    textAlign: "center"
-  },
-  subtitle: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    textAlign: "center",
-    marginTop: 4,
-  },
-  emptyContainer: {
+  listWrap: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: spacing.huge,
-  },
-  emptyTitle: {
-    ...typography.h3,
-    color: colors.textSecondary,
-    marginTop: spacing.lg,
-    marginBottom: spacing.xs,
-  },
-  emptySubtitle: {
-    ...typography.bodySmall,
-    color: colors.textTertiary,
-    textAlign: "center",
-    lineHeight: 20,
   },
   listContent: {
-    paddingVertical: spacing.lg,
-    paddingBottom: 100, // Make room for Pill Nav
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    paddingBottom: 24,
   },
-  messageWrapper: {
-    marginBottom: spacing.lg,
+  assistantWrap: {
+    marginBottom: spacing.xl,
   },
-  resultsContainer: {
-    paddingHorizontal: spacing.lg,
-    marginTop: spacing.md,
-  },
-  loadingContainer: {
+  assistantBadge: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.sm,
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  assistantBadgeText: {
+    ...typography.caption,
+    color: colors.primary,
+    letterSpacing: 2,
+  },
+  assistantText: {
+    fontSize: 16,
+    lineHeight: 26,
+    color: colors.text,
+    fontWeight: "400",
+    maxWidth: "94%",
+  },
+  userRow: {
+    alignItems: "flex-end",
+    marginBottom: spacing.xl,
+  },
+  userBubble: {
+    maxWidth: "82%",
+    backgroundColor: "rgba(26,22,18,0.98)",
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  loadingText: {
-    ...typography.bodySmall,
-    color: colors.textSecondary,
+  userText: {
+    fontSize: 16,
+    lineHeight: 26,
+    color: colors.text,
+    fontWeight: "400",
   },
-  inputArea: {
-    paddingBottom: 80, // Height of bottom tab
-  }
+  loadingRow: {
+    paddingVertical: spacing.md,
+  },
+  emptySpacer: {
+    height: 160,
+  },
+  inputContainer: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: 84,
+    paddingTop: spacing.sm,
+  },
+  inputWrap: {
+    backgroundColor: "rgba(12,12,14,0.98)",
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    borderRadius: borderRadius.lg,
+    paddingLeft: spacing.lg,
+    paddingRight: 72,
+    minHeight: 62,
+    justifyContent: "center",
+  },
+  input: {
+    ...typography.body,
+    color: colors.text,
+  },
+  sendBtn: {
+    position: "absolute",
+    right: spacing.xl,
+    top: -6,
+    width: 54,
+    height: 54,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  sendBtnDisabled: {
+    opacity: 0.4,
+  },
 });

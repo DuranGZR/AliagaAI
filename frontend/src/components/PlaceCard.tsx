@@ -1,6 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Linking, Platform } from "react-native";
-import { BlurView } from "expo-blur";
+import { View, Text, StyleSheet, TouchableOpacity, Linking } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, borderRadius, shadows, typography } from "../theme";
 
@@ -33,7 +32,7 @@ export function PlaceCard({
 
   return (
     <View style={styles.cardContainer}>
-      <BlurView intensity={50} tint="dark" style={styles.card}>
+      <View style={styles.card}>
         <View style={styles.header}>
           <View style={styles.titleRow}>
             <Text style={styles.name} numberOfLines={1}>
@@ -41,7 +40,7 @@ export function PlaceCard({
             </Text>
             {rating != null && (
               <View style={styles.ratingBadge}>
-                <Ionicons name="star" size={12} color="#F59E0B" />
+                <Ionicons name="star" size={12} color="#F5A623" />
                 <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
               </View>
             )}
@@ -55,7 +54,7 @@ export function PlaceCard({
 
         {address && (
           <View style={styles.infoRow}>
-            <Ionicons name="location-sharp" size={14} color={colors.secondary} />
+            <Ionicons name="location-sharp" size={14} color={colors.primary} />
             <Text style={styles.infoText} numberOfLines={1}>
               {address}
             </Text>
@@ -86,7 +85,7 @@ export function PlaceCard({
             </TouchableOpacity>
           )}
         </View>
-      </BlurView>
+      </View>
     </View>
   );
 }
@@ -99,10 +98,9 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: borderRadius.xl,
     padding: spacing.lg,
-    backgroundColor: colors.glassDark,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.borderLight,
-    overflow: "hidden",
   },
   header: {
     marginBottom: spacing.md,
@@ -121,7 +119,7 @@ const styles = StyleSheet.create({
   ratingBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(245, 158, 11, 0.2)",
+    backgroundColor: "rgba(245, 166, 35, 0.15)",
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     borderRadius: borderRadius.sm,
@@ -130,7 +128,7 @@ const styles = StyleSheet.create({
   ratingText: {
     ...typography.caption,
     fontWeight: "700",
-    color: "#FCD34D",
+    color: "#F5A623",
   },
   categoryBadge: {
     alignSelf: "flex-start",
@@ -139,15 +137,11 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: borderRadius.sm,
     marginTop: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
   },
   categoryText: {
     ...typography.caption,
-    color: colors.textSecondary,
+    color: colors.primary,
     fontWeight: "600",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
   },
   infoRow: {
     flexDirection: "row",
@@ -167,7 +161,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   tag: {
-    backgroundColor: colors.glassDark,
+    backgroundColor: colors.surfaceHighlight,
     borderWidth: 1,
     borderColor: colors.borderLight,
     paddingHorizontal: spacing.sm,
@@ -192,14 +186,13 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceLight,
     borderWidth: 1,
     borderColor: colors.borderLight,
   },
   primaryAction: {
-    backgroundColor: colors.secondary,
-    borderColor: colors.secondary,
-    ...shadows.glow,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   actionText: {
     ...typography.bodySmall,

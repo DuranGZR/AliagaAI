@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   imagePlaceholder: {
     height: 300,
-    backgroundColor: colors.surfaceContainer,
+    backgroundColor: colors.surface,
   },
   imageOverlay: {
     ...StyleSheet.absoluteFillObject,

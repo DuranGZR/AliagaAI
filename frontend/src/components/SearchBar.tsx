@@ -7,9 +7,8 @@ import {
   ActivityIndicator,
   Platform,
 } from "react-native";
-import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, borderRadius, typography, shadows } from "../theme";
+import { colors, spacing, borderRadius, typography } from "../theme";
 
 interface SearchBarProps {
   value: string;
@@ -23,42 +22,36 @@ export function SearchBar({
   value,
   onChangeText,
   onSubmit,
-  placeholder = "Aliağa hakkında bir şey sor...",
+  placeholder = "Asistan'a bir şey söyle...",
   loading = false,
 }: SearchBarProps) {
   return (
     <View style={styles.wrapper}>
-      <BlurView intensity={60} tint="dark" style={styles.container}>
-        <Ionicons
-          name="chatbubble-ellipses-outline"
-          size={20}
-          color={colors.secondary}
-          style={styles.icon}
-        />
+      <View style={styles.container}>
         <TextInput
           style={styles.input}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={colors.textSecondary}
+          placeholderTextColor={colors.textTertiary}
           multiline={false}
           returnKeyType="send"
           onSubmitEditing={onSubmit}
           editable={!loading}
         />
-        <TouchableOpacity 
-          onPress={onSubmit} 
+        <TouchableOpacity
+          onPress={onSubmit}
           style={[styles.action, (!value.trim() || loading) && styles.actionDisabled]}
           disabled={!value.trim() || loading}
           activeOpacity={0.7}
         >
           {loading ? (
-            <ActivityIndicator size="small" color="white" />
+            <ActivityIndicator size="small" color={colors.textInverse} />
           ) : (
-            <Ionicons name="arrow-up" size={20} color="white" />
+            <Ionicons name="arrow-up" size={18} color={colors.textInverse} />
           )}
         </TouchableOpacity>
-      </BlurView>
+      </View>
     </View>
   );
 }
@@ -66,43 +59,36 @@ export function SearchBar({
 const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xl,
+    paddingBottom: spacing.md,
     paddingTop: spacing.sm,
   },
   container: {
     flexDirection: "row",
     alignItems: "center",
     borderRadius: borderRadius.xxl,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
     paddingVertical: Platform.OS === "ios" ? spacing.sm : 2,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...shadows.glow,
-    overflow: "hidden",
-    backgroundColor: colors.glassDark,
-  },
-  icon: {
-    marginLeft: spacing.sm,
-    marginRight: spacing.sm,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
   input: {
     flex: 1,
     ...typography.body,
     color: colors.text,
-    minHeight: 48,
+    minHeight: 44,
   },
   action: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.secondary,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
     marginLeft: spacing.sm,
-    ...shadows.glow,
   },
   actionDisabled: {
     backgroundColor: colors.textTertiary,
-    opacity: 0.5,
+    opacity: 0.4,
   },
 });
