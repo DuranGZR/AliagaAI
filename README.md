@@ -350,9 +350,9 @@ AliagaAI/
 
 ## 👤 Geliştirici
 
-**Duran Güzer**
+**Duran Gezer**
 
-Bu proje, Manisa Celâl Bayar Üniversitesi Yazılım Mühendisliği Bölümü bitirme projesi olarak geliştirilmiştir.
+Bu proje, İnönü Üniversitesi Bilgisayar Mühendisliği Bölümü bitirme projesi olarak geliştirilmiştir.
 
 ---
 
