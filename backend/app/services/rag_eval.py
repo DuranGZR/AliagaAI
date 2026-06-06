@@ -24,12 +24,12 @@ from app.core.config import settings
 from app.models.city import UtilityOutage
 from app.models.content import Announcement, Event, JobListing, News, Project
 from app.models.places import Institution, Place
-from app.services.query_router import process_chat_query
+from app.services.agent.service import AgenticRAGService
 from app.services.rag import search_similar_chunks
 
 
 DEFAULT_EVAL_SET_PATH = Path("evaluation/rag_eval_set.json")
-REPORTS_DIR = Path("../logs/rag_eval_reports")
+REPORTS_DIR = Path(__file__).resolve().parents[2] / "logs" / "rag_eval_reports"
 _CITATION_RE = re.compile(r"\[S(\d+)\]")
 
 
@@ -179,6 +179,7 @@ async def evaluate_rag(
 
     item_reports: list[dict[str, Any]] = []
 
+    agent = AgenticRAGService()
     for item in eval_items:
         question = item["question"]
         expected_types = set(item.get("expected_source_types", []))
@@ -203,7 +204,7 @@ async def evaluate_rag(
         search_method = "n/a"
 
         if run_generation:
-            response = await process_chat_query(session, question)
+            response = await agent.run(session, question)
             answer_text = response.answer or ""
             sources_count = len(response.sources)
             search_method = response.search_method
