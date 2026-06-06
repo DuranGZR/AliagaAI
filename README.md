@@ -8,354 +8,384 @@
   <img src="https://img.shields.io/badge/Groq_LLM-F55036?style=for-the-badge&logo=meta&logoColor=white" />
 </p>
 
-<h1 align="center">🏙️ AliağaAI</h1>
-<h3 align="center">Hibrit RAG Mimarisi ile Çalışan Akıllı Şehir Asistanı</h3>
-
-<p align="center">
-  <i>Aliağa ilçesine özel, yapay zekâ destekli şehir rehberi ve sohbet asistanı.</i><br/>
-  <i>Gerçek zamanlı veriler • Halüsinasyonsuz yanıtlar • Tamamen yerel odaklı</i>
-</p>
-
----
-
-## 📌 Proje Hakkında
-
-**AliağaAI**, Aliağa ilçesi için sıfırdan tasarlanmış, üretim seviyesinde bir **Akıllı Şehir Asistanı** projesidir. Kullanıcılar mobil uygulama üzerinden doğal dilde soru sorarak nöbetçi eczanelerden hava durumuna, şehir tarihçesinden güncel haberlere, ulaşım bilgilerinden mekan önerilerine kadar geniş bir yelpazede **doğrulanmış ve kaynak gösterimli** yanıtlar alır.
-
-Sistem, klasik bir chatbot'tan farklı olarak **Retrieval-Augmented Generation (RAG)** mimarisini temel alır. Yapay zekâ modeli kendi bilgisinden uydurma yapmak yerine, her yanıtı veritabanındaki doğrulanmış kaynaklara dayandırır.
-
-### Temel Farklar
-
-| Klasik Chatbot | AliağaAI |
-|:---|:---|
-| LLM bilgisine dayalı cevaplar | Veritabanı kaynaklarına dayalı cevaplar |
-| Güncelliği belirsiz | Gerçek zamanlı veri (eczane, hava, kur) |
-| Genel bilgi | Sadece Aliağa odaklı yerel bilgi |
-| Halüsinasyon riski yüksek | Anti-halüsinasyon katmanı ile korumalı |
-| Kaynak belirtmez | Her yanıtta kaynak referansı |
+<div align="center">
+  <h1>🏙️ AliağaAI</h1>
+  <h3>Yapay Zeka Destekli Şehir Rehberi ve Akıllı Şehir Asistanı (Full Stack)</h3>
+  <p>
+    <b>Aliağa ilçesine özel, mobil frontend (React Native) ve çok aşamalı RAG backend (FastAPI) mimarisiyle çalışan, doğrulanmış ve halüsinasyonsuz akıllı şehir asistanı.</b><br/>
+    <i>Doğrulanmış Bilgi Deposu • Lüks Arayüz (Stitch Design) • Ajanlı Sorgu Yönlendirici • pgvector + Kelime Arama</i>
+  </p>
+  <p>
+    <a href="#-1-mobil-uygulama-frontend-mimarisi">Frontend Mimarisi</a> •
+    <a href="#-2-backend-api-ve-ajan-mimarisi">Backend Mimarisi</a> •
+    <a href="#-3-rag-retrieval-augmented-generation-calisma-mantigi">RAG Çalışma Mantığı</a> •
+    <a href="#-4-proje-klasör-yapisi">Klasör Yapısı</a> •
+    <a href="#-5-kurulum-ve-calistirma">Kurulum</a> •
+    <a href="#-6-api-dokumantasyonu">API Dokümantasyonu</a>
+  </p>
+</div>
 
 ---
 
-## 🏗️ Sistem Mimarisi
+## 🏗️ Genel Sistem Veri Akışı
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        KULLANICI                                │
-│                   (React Native / Expo)                          │
-└───────────────────────┬─────────────────────────────────────────┘
-                        │ HTTP / REST
-                        ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     FastAPI Backend                              │
-│  ┌──────────┐  ┌──────────────┐  ┌───────────────────────────┐  │
-│  │ Rate     │  │ Intent       │  │ Query Router              │  │
-│  │ Limiter  │→ │ Analyzer     │→ │ (SQL / RAG / Hybrid)      │  │
-│  └──────────┘  └──────────────┘  └─────────┬─────────────────┘  │
-│                                            │                    │
-│                 ┌──────────────────────────┼──────────────┐     │
-│                 ▼                          ▼              ▼     │
-│  ┌──────────────────┐  ┌──────────────────────┐  ┌───────────┐ │
-│  │ SQL Katmanı      │  │ pgvector (RAG)       │  │ Groq LLM  │ │
-│  │ (Eczane, Hava,   │  │ (Haberler, Mekanlar, │  │ Llama-3.3 │ │
-│  │  Kur, Deprem...) │  │  Tarihçe, Etkinlik)  │  │ 70B       │ │
-│  └──────────────────┘  └──────────────────────┘  └───────────┘ │
-│                                                                 │
-│  ┌─────────────┐  ┌──────────────┐  ┌────────────────────────┐ │
-│  │ Persona     │  │ Scheduler    │  │ Otonom Veri Botları     │ │
-│  │ Engine      │  │ (APScheduler)│  │ (Belediye, OSM, İZSU)  │ │
-│  └─────────────┘  └──────────────┘  └────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              PostgreSQL 17 + pgvector                           │
-│  Yapılandırılmış tablolar + 384-boyutlu vektör embeddingler    │
-└─────────────────────────────────────────────────────────────────┘
+Uygulamanın çalışması, kullanıcının mobil arayüzdeki etkileşiminden başlayıp, API, RAG, SQL ve LLM katmanlarından geçerek yeniden mobil uygulamaya yansıtılmasına kadar bütünleşik bir döngüden oluşur:
+
+```mermaid
+graph TD
+    User([📱 Mobil Kullanıcı]) -->|1. REST İstekleri / Axios| API[⚙️ FastAPI Endpoints]
+    
+    subgraph Frontend (React Native)
+        UI[🎨 Stitch Design / Black & Gold] -->|Context / GPS / Auth| User
+        Shimmer[⏳ Shimmer placeholders / DataState] --> UI
+    end
+    
+    subgraph Backend API & Agent
+        API -->|2. Hata Düzeltici| Pre[🧹 Preprocessor]
+        Pre -->|3. Niyet Analizi| Router{🤖 Agentic Query Router}
+        Router -->|A. SQL Arama| SQL[🗄️ SQL DB]
+        Router -->|B. Semantik Arama| pgvector[🧠 pgvector RAG]
+        Router -->|C. Harici Veri| Cache[🌍 CollectAPI / Kandilli]
+    end
+    
+    subgraph RAG Pipeline
+        pgvector -->|Semantik Varyantlar| Expand[🔍 Query Expansion]
+        Expand -->|Hibrit Arama| FTS[🔎 PostgreSQL FTS]
+        FTS -->|Birleştirme| RRF[📈 Reciprocal Rank Fusion]
+        RRF -->|Yeniden Sıralama| Rerank[📊 Rerank candidates]
+    end
+    
+    Rerank -->|Doğrulanmış Bağlam Chunks| LLM[🤖 LLM Generator]
+    SQL -->|Yapılandırılmış Tablo Verisi| LLM
+    Cache -->|Canlı Ham Veri| LLM
+    
+    LLM -->|4. Atıf Kontrolü & Grounding| Filter[🛡️ Citation Sanitizer]
+    Filter -->|5. Formatlı JSON| User
 ```
 
 ---
 
-## 🧠 RAG Pipeline Detayları
+## 📱 1. Mobil Uygulama (Frontend) Mimarisi
 
-AliağaAI'nin arama motoru üç katmanlı bir pipeline ile çalışır:
+Mobil uygulama, **React Native (Expo)** tabanlı olup, tamamen özelleştirilmiş şık bir koyu tema ve asenkron veri durumu yönetimiyle tasarlanmıştır.
 
-### 1. Niyet Analizi (Intent Detection)
-Kullanıcının sorusu LLM tarafından analiz edilerek **25+ farklı niyet kategorisinden** birine atanır. Bu aşamada hangi veri kaynağına başvurulacağı belirlenir.
-
-### 2. Veri Çekme (Retrieval)
-Belirlenen niyete göre üç farklı arama stratejisinden biri devreye girer:
-
-| Strateji | Kullanım Alanı | Örnek |
-|:---|:---|:---|
-| **SQL Only** | Yapılandırılmış, filtrelenebilir veriler | Nöbetçi eczane, hava durumu, döviz |
-| **Hybrid (SQL + RAG)** | Hem filtre hem anlam araması gereken veriler | Mekanlar, haberler, etkinlikler |
-| **RAG Only** | Yapılandırılmamış metin bilgisi | Şehir tarihçesi, coğrafya, turizm |
-
-### 3. Yanıt Üretimi (Grounded Generation)
-Çekilen veriler LLM'e bağlam olarak sunulur. Model **yalnızca** bu bağlamdaki bilgilere dayanarak yanıt üretir. Anti-halüsinasyon kuralları bu aşamada devreye girer:
-
-- Bağlamda olmayan bilgi **eklenmez**
-- Adres, telefon, saat gibi bilgiler **uydurulmaz**
-- Kaynaklarda bilgi yoksa kullanıcıya **dürüstçe** bildirilir
-- Her yanıt bir güven skoru (`confidence`) ile etiketlenir
+### 🎨 A. Tasarım Sistemi: Stitch Design System
+Uygulamanın görsel dili antik "Kültürel Miras" (Cultural Heritage) ve modern "Apple Sıvı Cam" (Liquid Glass) estetiğinden ilham almıştır:
+*   **Renk Paleti (`theme/index.ts`):** 
+    *   `background`: Saf Siyah (`#0A0A0A` / `#121214`) zemin.
+    *   `primary`: Ege Altını / Bej vurgu tonu (`#C8A96E`).
+    *   `surface`: Yarı şeffaf koyu kart yüzeyi (`rgba(30,30,30,0.80)`).
+    *   `glassNav`: Pill tab bar şeffaflığı (`rgba(28,28,28,0.92)`).
+*   **Tipografi:** Başlıklarda `Outfit` (Bold/ExtraBold), gövde metinlerinde ise yüksek okunurluğa sahip `Plus Jakarta Sans` yazı tipi ailesi.
+*   **Harita Stili (`darkMapStyle`):** Google Haritalar arayüzü, Black & Gold temasıyla uyumlu olacak şekilde özel bir JSON şemasıyla karanlıklaştırılmıştır. Su havzaları koyu mavi (`#0a1628`), yollar koyu gri, etiketler ise altın sarısı (`#C8A96E`) olarak renklendirilmiştir.
 
 ---
 
-## 📊 Veri Kaynakları ve Katmanlar
+### 🔀 B. Navigasyon ve Ekran Yapısı
+Uygulama, `@react-navigation/native` ve `@react-navigation/bottom-tabs` ile yönetilen **3 ana sekme** (3-Tab Minimalist Bar) ve bunlara bağlı alt stack ekranlarından oluşur:
 
-### Yapılandırılmış Veri (SQL)
-
-| Veri Tipi | Tablo | Güncelleme | Kaynak |
-|:---|:---|:---|:---|
-| Nöbetçi Eczaneler | `pharmacies` | Günlük | CollectAPI |
-| Hava Durumu | `weather_cache` | Saatlik | CollectAPI |
-| Namaz Vakitleri | `prayer_times_cache` | Günlük | CollectAPI |
-| Akaryakıt Fiyatları | `fuel_prices_cache` | Günlük | CollectAPI |
-| Döviz Kurları | `currency_cache` | Saatlik | CollectAPI |
-| Altın Fiyatları | `gold_cache` | Saatlik | CollectAPI |
-| Son Depremler | `earthquakes_cache` | Saatlik | Kandilli API |
-| İZBAN Seferleri | `izban_schedules` | Haftalık | İZBAN |
-| Feribot Seferleri | `ferry_schedules` | Haftalık | İzdeniz |
-| Semt Pazarları | `street_markets` | Sabit | Manuel |
-| Acil Telefonlar | `emergency_contacts` | Sabit | Manuel |
-
-### Hibrit Veri (SQL + pgvector)
-
-| Veri Tipi | Tablo | Kaynak |
-|:---|:---|:---|
-| Mekanlar ve İşletmeler | `places` | OpenStreetMap + Manuel |
-| Haberler | `news` | aliaga.bel.tr Scraper |
-| Etkinlikler | `events` | aliaga.bel.tr Scraper |
-| Duyurular | `announcements` | aliaga.bel.tr Scraper |
-| Belediye Projeleri | `projects` | aliaga.bel.tr Scraper |
-| İş İlanları | `job_listings` | aliaga.bel.tr Scraper |
-| Su / Elektrik Kesintileri | `utility_outages` | İZSU / GDZ Scraper |
-| Vefat İlanları | `obituaries` | İzmir Mezarlıklar Scraper |
-| Kurumlar | `institutions` | Seed Data |
-
-### Bilgi Katmanları (pgvector — Saf Metin)
-
-| Katman | İçerik |
-|:---|:---|
-| `tarih` | Aliağa'nın kuruluşu, antik kentler, Kurtuluş Savaşı dönemi |
-| `cografya` | İklim, bitki örtüsü, topografya |
-| `ekonomi` | Sanayi bölgeleri, rafineri, liman bilgileri |
-| `turizm` | Plajlar, doğa alanları, termal kaynaklar |
-| `gastronomi` | Yöresel yemekler, lezzetler |
-| `ulasim` | İZBAN, otoyol, feribot bağlantıları |
-| `mahalleler` | İlçe mahalleleri ve nüfus bilgileri |
+1.  **HomeScreen (Ana Ekran):**
+    *   AI karşılama paneli.
+    *   Hava durumu, İZBAN sefer özetleri ve bugünkü nöbetçi eczane widget'ları.
+    *   **Akıllı Aksiyonlar (Intent Actions):** Kullanıcıyı doğrudan belirli niyetlerle sohbete yönlendiren dinamik kısayollar.
+2.  **ChatScreen (RAG Sohbet):**
+    *   AI ile izole sohbet alanı. Gelen mesajlardaki `[S1]`, `[S2]` gibi kaynak etiketlerini tıklanabilir butonlara dönüştürür.
+    *   Hızlı sohbet başlatıcı öneri butonları (nöbetçi eczaneler, kesintiler, gezilecek yerler vb.).
+3.  **ExploreScreen (Keşfet & Harita):**
+    *   Belediye haberleri, etkinlikler ve gezi rotaları.
+    *   **ExploreMap:** Kullanıcının mevcut konumu ile turistik mekanların konumlarını canlı haritada çizen, rota duraklarını birleştiren etkileşimli harita katmanı.
+4.  **Yardımcı Ekranlar:**
+    *   `DirectoryScreen`: Nöbetçi eczaneler, taksi durakları, kamu kurumları, okullar, bankalar ve acil numaraları listeleyen şehir rehberi.
+    *   `MunicipalityScreen`: Belediye duyuruları, ihaleleri, aktif projeleri ve güncel iş ilanları.
+    *   `IzbanScheduleScreen` / `OutageListScreen` / `EarthquakeListScreen` / `WeatherDetailScreen` / `LoginScreen` / `RegisterScreen`.
 
 ---
 
-## 🤖 Otonom Veri Toplama Botları
-
-Sistem, verilerini güncel tutmak için arka planda çalışan **otonom scraper** botlarına sahiptir:
-
-| Bot | Kaynak | Toplanan Veri |
-|:---|:---|:---|
-| `scraper_aliaga_bel` | aliaga.bel.tr | Haberler, duyurular, etkinlikler, projeler, iş ilanları |
-| `scraper_news` | Çeşitli kaynaklar | Aliağa ile ilgili güncel haberler |
-| `scraper_outages` | İZSU / GDZ Elektrik | Su ve elektrik kesinti bildirileri |
-| `scraper_osm_places` | OpenStreetMap (Overpass) | Kafe, restoran, market, ATM, otel vb. |
-| `scraper_izmir_mezarlik` | İzmir Büyükşehir | Vefat ve cenaze bilgileri |
-| `scraper_izmir_open_data` | İzmir Açık Veri | Belediye hizmet verileri |
-| `scraper_knowledge_layers` | Vikipedi + Manuel | Tarih, coğrafya ve kültür bilgileri |
-| `collectapi_client` | CollectAPI | Eczane, hava, kur, yakıt, namaz, deprem |
-
-Tüm botlar **APScheduler** ile periyodik olarak tetiklenir ve toplanan veriler otomatik olarak vektör veritabanına indekslenir.
+### 🛡️ C. Context Sağlayıcılar (Global State)
+*   **AuthContext:** JWT token doğrulaması, kullanıcı kayıt/giriş durumlarının lokal depolamada (`AsyncStorage`) tutulması ve Google OAuth (`expo-auth-session`) entegrasyonu.
+*   **LocationContext:** `expo-location` kütüphanesini kullanarak kullanıcının GPS konumunu okur ve konum tabanlı sıralamalar için koordinatları saklar.
 
 ---
 
-## 📱 Mobil Uygulama (Frontend)
-
-React Native (Expo) ile geliştirilmiş, **Black & Gold** premium tasarıma sahip mobil uygulamadır.
-
-### Ekranlar
-
-| Ekran | Açıklama |
-|:---|:---|
-| **Ana Sayfa** | Hava durumu, güncel haberler, hızlı erişim kartları |
-| **Keşfet** | Kategorilere göre mekan ve içerik keşfi |
-| **Sohbet (AI Chat)** | Doğal dilde soru-cevap asistanı |
-| **Mekan Detay** | Mekan bilgileri, adres, çalışma saatleri |
-| **Haber Detay** | Haber içeriğinin tam görünümü |
-| **Eczane Listesi** | Nöbetçi eczaneler ve konum bilgileri |
-| **Mekan Listesi** | Kategoriye göre filtrelenmiş mekan listesi |
-| **Profil / Ayarlar** | Kullanıcı tercihleri ve uygulama ayarları |
+### ⏳ D. Durum ve Hata Yönetimi
+*   **Shimmer placeholders (`ShimmerPlaceholder`):** Veriler API'den çekilirken donuk yükleme simgeleri yerine kartların şeklini alan yumuşak geçişli animasyonlu paneller gösterilir.
+*   **DataStatePanel:** Ağ hatalarında, veri bulunamadığında veya rate limit aşımında kullanıcıya "Yeniden Dene" butonuyla birlikte şık hata ekranları sunar.
 
 ---
 
-## ⚙️ Teknoloji Yığını
+## ⚙️ 2. Backend (API ve Ajan) Mimarisi
 
-| Katman | Teknoloji | Açıklama |
-|:---|:---|:---|
-| **Backend** | FastAPI (Python 3.11+) | Asenkron API sunucusu |
-| **Veritabanı** | PostgreSQL 17 + pgvector | İlişkisel + vektör veritabanı |
-| **LLM** | Groq (Llama-3.3-70B) | Düşük gecikmeli büyük dil modeli |
-| **Embedding** | multilingual-e5-small (384d) | Çok dilli metin vektörleştirme |
-| **Frontend** | React Native + Expo | Çapraz platform mobil uygulama |
-| **Konteynerizasyon** | Docker Compose | Tek komutla tam dağıtım |
-| **Zamanlayıcı** | APScheduler | Periyodik veri güncelleme |
-| **Web Scraping** | httpx + BeautifulSoup4 | Asenkron veri toplama |
-| **Rate Limiting** | SlowAPI | API kötüye kullanım koruması |
+Backend, asenkron yapıda çalışan **FastAPI** web framework'ünü temel alır. 
+
+### 🛡️ A. API Güvenliği ve Hız Sınırları (Security & Rate Limiting)
+*   **verify_api_key:** Endpoint'ler `X-API-Key` header doğrulamasıyla korunur. `.env` dosyasındaki anahtarla eşleşmeyen istekler `403 Forbidden` ile reddedilir.
+*   **SlowAPI:** `/api/v1/chat` uç noktası, sunucuyu DDoS saldırılarından ve API kota aşımından korumak için IP tabanlı istek sınırlayıcıya (Rate Limiter) sahiptir.
+
+### 🔄 B. Arka Plan Görevleri (APScheduler)
+FastAPI, `main.py:lifespan` döngüsünde arka planda bir zamanlayıcı (`apscheduler.schedulers.asyncio.AsyncIOScheduler`) ayağa kaldırır. Bu zamanlayıcı, verilerin güncel kalması için 9 farklı asenkron botu (scrapers) yönetir. Herhangi bir botta oluşabilecek hata (örn. belediye sitesinin çökmesi), diğer botları ve API'yi etkilemeyecek şekilde izole edilmiştir.
 
 ---
 
-## 🚀 Kurulum ve Çalıştırma
+## 🧠 3. RAG (Retrieval-Augmented Generation) Çalışma Mantığı
 
-### Ön Gereksinimler
-
-- [Docker](https://docs.docker.com/get-docker/) ve [Docker Compose](https://docs.docker.com/compose/install/)
-- [Groq API Anahtarı](https://console.groq.com/) (ücretsiz)
-- [CollectAPI Anahtarı](https://collectapi.com/) (eczane, hava durumu vb. için)
-
-### 1. Depoyu Klonlayın
-
-```bash
-git clone https://github.com/DuranGZR/AliagaAI.git
-cd AliagaAI
-```
-
-### 2. Ortam Değişkenlerini Ayarlayın
-
-```bash
-cp .env.example .env
-```
-
-`.env` dosyasını açın ve **en az** şu iki anahtarı doldurun:
-
-```env
-GROQ_API_KEY=gsk_buraya_kendi_anahtariniz
-COLLECTAPI_KEY=buraya_kendi_anahtariniz
-```
-
-### 3. Docker ile Başlatın
-
-```bash
-# Tüm servisleri başlat (PostgreSQL + Backend + Frontend)
-docker compose up --build
-```
-
-Sistem başlatıldığında otomatik olarak:
-- ✅ PostgreSQL veritabanı ve pgvector eklentisi oluşturulur
-- ✅ Tablo şemaları migrate edilir
-- ✅ Başlangıç verileri (seed data) yüklenir
-- ✅ Embedding modeli ısıtılır (warmup)
-- ✅ Periyodik veri toplama görevleri başlatılır
-
-### 4. Erişim Noktaları
-
-| Servis | Adres |
-|:---|:---|
-| Backend API | `http://localhost:8000` |
-| Swagger Docs | `http://localhost:8000/docs` |
-| ReDoc | `http://localhost:8000/redoc` |
-| Frontend (Web) | `http://localhost:19006` |
-| PostgreSQL | `localhost:5432` |
-
-### 5. Servisleri Ayrı Ayrı Başlatma
-
-```bash
-# Sadece veritabanı
-docker compose up -d postgres
-
-# Veritabanı + Backend
-docker compose up -d postgres backend
-
-# Sadece Frontend (backend çalışıyor olmalı)
-docker compose up frontend
-```
-
-### 6. Durdurma
-
-```bash
-# Servisleri durdur
-docker compose down
-
-# Servisleri durdur ve veritabanı verisini sil
-docker compose down -v
-```
-
----
-
-## 📁 Proje Yapısı
+AliağaAI'ın en kritik bölümü, semantik aramaları sıfır uydurma veri (grounding) ile yöneten RAG motorudur.
 
 ```
-AliagaAI/
-├── backend/
-│   ├── app/
-│   │   ├── api/v1/endpoints/     # REST API uç noktaları
-│   │   ├── core/                 # Yapılandırma ve ayarlar
-│   │   ├── models/               # SQLAlchemy ORM modelleri
-│   │   ├── schemas/              # Pydantic veri şemaları
-│   │   ├── services/
-│   │   │   ├── pipeline/         # Modüler AI pipeline (Intent, Generation)
-│   │   │   ├── query_router.py   # Ana sorgu yönlendirici
-│   │   │   ├── rag.py            # Hibrit arama motoru
-│   │   │   ├── persona.py        # Kişilik ve üslup motoru
-│   │   │   ├── llm.py            # Groq LLM istemcisi
-│   │   │   ├── chunk_indexer.py  # Vektör indeksleme servisi
-│   │   │   ├── embedding.py      # Metin vektörleştirme
-│   │   │   ├── scheduler.py      # Zamanlanmış görev yöneticisi
-│   │   │   └── scraper_*.py      # Otonom veri toplama botları
-│   │   ├── database.py           # Veritabanı bağlantı havuzu
-│   │   └── main.py               # FastAPI uygulama giriş noktası
-│   ├── scripts/                  # Yardımcı betikler (seed, sync, eval)
-│   ├── evaluation/               # RAG değerlendirme test setleri
-│   ├── Dockerfile
-│   └── requirements.txt
-├── frontend/
-│   ├── src/
-│   │   ├── screens/              # Uygulama ekranları
-│   │   ├── components/           # Yeniden kullanılabilir bileşenler
-│   │   ├── services/             # API istemcisi
-│   │   ├── navigation/           # Ekran yönlendirme
-│   │   ├── theme/                # Tasarım sistemi (Black & Gold)
-│   │   └── types/                # TypeScript tip tanımları
-│   ├── Dockerfile
-│   └── package.json
-├── docker-compose.yml            # Tam orkestrasyon dosyası
-├── .env.example                  # Ortam değişkenleri şablonu
-└── README.md
+[Kullanıcı Sorgusu] ──► [Sorgu Düzeltme] ──► [LLM Sorgu Genişletme (4 Varyant)]
+                                                       │
+         ┌─────────────────────────────────────────────┴─────────────────────────────────────────────┐
+         ▼ (Passage: e5 Embeddings)                                                                  ▼ (FTS Turkish Plain Query)
+┌──────────────────────────────────────────┐                                                ┌──────────────────────────────────────────┐
+│             Vektörel Arama               │                                                │              Lexical Arama               │
+│ - pgvector HNSW kosinüs benzerliği       │                                                │ - PostgreSQL Full-Text Search            │
+│ - Dinamik Eşik: 0.35 (Kısa sorguda 0.28) │                                                │ - plainto_tsquery('turkish')             │
+└────────────────────┬─────────────────────┘                                                └────────────────────┬─────────────────────┘
+                     │                                                                                           │
+                     └─────────────────────────────────────┬─────────────────────────────────────────────────────┘
+                                                           ▼
+                                            ┌─────────────────────────────┐
+                                            │ Reciprocal Rank Fusion (RRF)│
+                                            │   (%70 Vektör + %30 Lexical)│
+                                            └──────────────┬──────────────┘
+                                                           ▼
+                                            ┌─────────────────────────────┐
+                                            │      Lexical Rescue         │
+                                            │ (FTS Skoru >= 0.4 ise ekle) │
+                                            └──────────────┬──────────────┘
+                                                           ▼
+                                            ┌─────────────────────────────┐
+                                            │       Reranker Filtre       │
+                                            │  (Kelime çakışması analizi) │
+                                            └──────────────┬──────────────┘
+                                                           ▼
+                                            ┌─────────────────────────────┐
+                                            │        Groq LLM Context     │
+                                            └─────────────────────────────┘
 ```
 
----
+### 📋 RAG İş Akışı Adımları:
 
-## 🔒 Güvenlik Önlemleri
-
-- **Rate Limiting:** Chat API uç noktası dakikada maksimum istek sayısıyla sınırlandırılmıştır
-- **Anti-Halüsinasyon:** LLM, kaynakta olmayan bilgiyi kesinlikle üretmez
-- **Ortam Değişkenleri:** API anahtarları `.env` dosyasında tutulur, repoya dahil edilmez
-- **CORS Koruması:** Sadece yetkili origin'lerden gelen istekler kabul edilir
-- **Bağlantı Havuzu:** PostgreSQL bağlantı limitleri (20+20) yapılandırılmıştır
-
----
-
-## 📈 Yol Haritası
-
-- [x] Hibrit arama motoru (SQL + pgvector RAG)
-- [x] 25+ niyet kategorisi ile akıllı yönlendirme
-- [x] Gerçek zamanlı veri toplama botları
-- [x] Anti-halüsinasyon katmanı
-- [x] Premium Black & Gold mobil tasarım
-- [x] Docker Compose ile tek komutla dağıtım
-- [x] Sohbet geçmişi ve bağlam belleği
-- [ ] Konum tabanlı anlık öneriler
-- [ ] Uygulama içi etkileşimli harita (Mapbox)
-- [ ] Kullanıcı yorum ve puanlama sistemi
-- [ ] Komşu ilçelere hizmet genişlemesi (Menemen, Foça)
-- [ ] Sesli asistan desteği
+1.  **Veri İndeksleme (Ingestion):**
+    *   Haber, etkinlik ve belediye projelerinin uzun metinleri, `chunking.py` tarafından anlamlı bir şekilde maksimum **900 karakter** uzunluğunda parçalara bölünür.
+    *   Her bir parçanın SHA256 hash değeri hesaplanır. Yalnızca içeriği değişmiş veya yeni eklenmiş parçalar vektörize edilmek üzere indexer'a gönderilir.
+    *   Lokalde koşturulan `intfloat/multilingual-e5-small` embedding modeli ile **384 boyutlu** vektörler üretilir. Model kuralı gereği, indeksleme esnasında metinlerin başına `passage: ` ön eki eklenir.
+2.  **Sorgu Genişletme (Query Expansion):**
+    *   Kullanıcının girdiği kelimeler (örn: "egitim") LLM yardımıyla semantik olarak genişletilir ve **4 farklı varyant** sorgu üretilir (örn: "okul", "lise", "üniversite", "Aliağa eğitim").
+3.  **Çok Kanallı Arama (Multi-Stage Retrieval):**
+    *   **Vektör Arama:** Genişletilmiş sorgulara `query: ` ön eki eklenerek embedding vektörleri üretilir. pgvector üzerinde **HNSW (Hierarchical Navigable Small World)** indeksi kullanılarak kosinüs benzerliği ile veritabanında semantik arama yapılır.
+    *   **Kelime Tabanlı Arama (Lexical):** PostgreSQL FTS (Full-Text Search) ile kelime bazlı tam eşleşmeler taranır.
+4.  **Birleştirme ve Yeniden Sıralama (Fusion & Reranking):**
+    *   **Reciprocal Rank Fusion (RRF):** Vektör ve kelime aramalarından gelen adaylar sıralamalarına göre birleştirilir (Ağırlık: %70 Vektör, %30 Kelime).
+    *   **Lexical Rescue:** Vektör benzerliği `0.35` alt limitine takılsa bile, kelime eşleşme skoru `0.40` ve üzeri olan dökümanlar kurtarılır.
+    *   **Rerank:** Aday dökümanlar, sorgu kelimeleri ile olan doğrudan çakışma yoğunluğuna göre yeniden sıralanarak en iyi `k=5` döküman seçilir.
+5.  **Ajanlı Yönlendirme (Agentic Tool Calling):**
+    *   Ajan (`AgenticRAGService`), kullanıcının niyetine göre 13 farklı asenkron veritabanı aracından hangisini çağıracağına Groq Tool Calling ile karar verir.
+6.  **Doğrulama ve Atıf Güvenliği (Citations & Grounding):**
+    *   LLM'e sadece bağlamda yer alan verileri kullanma kuralı uygulanır. Cevapta kullanılan bilgilerin döküman numaraları `[S1]`, `[S2]` şeklinde belirtilir.
+    *   API çıkışında, veritabanından çekilmeyen uydurma atıf etiketleri regex filtresiyle otomatik olarak temizlenir.
 
 ---
 
-## 👤 Geliştirici
+## 📦 Proje Klasör Yapısı
 
-**Duran Gezer**
+<details>
+<summary>📂 <b>Backend Detaylı Klasör Ağacı</b> (Göster/Gizle)</summary>
 
-Bu proje, İnönü Üniversitesi Bilgisayar Mühendisliği Bölümü bitirme projesi olarak geliştirilmiştir.
+```
+backend/
+├── alembic/                      # Veritabanı migrasyon dosyaları
+├── app/
+│   ├── api/
+│   │   └── v1/
+│   │       ├── endpoints/
+│   │       │   ├── auth.py       # Kullanıcı giriş, kayıt ve Google login
+│   │       │   ├── chat.py       # RAG Chat endpoint (/chat)
+│   │       │   ├── city.py       # İZBAN, pazar, namaz, hava durumu API uçları
+│   │       │   ├── pharmacies.py # Nöbetçi eczane endpoint'leri
+│   │       │   └── places.py     # Mekan ve kuruluş listeleme API uçları
+│   │       └── api.py            # API rotalarını birleştiren router
+│   ├── core/
+│   │   ├── auth.py               # API Key ve JWT token verify dependencies
+│   │   ├── config.py             # Pydantic Settings (Tüm .env yapılandırması)
+│   │   └── limiter.py            # SlowAPI rate limiter nesnesi
+│   ├── models/
+│   │   ├── cache.py              # Hava durumu, döviz, deprem cache tabloları
+│   │   ├── city.py               # İZBAN, Feribot, Pazar ve pgvector DocumentChunk
+│   │   ├── content.py            # Haber, etkinlik, duyuru, proje, cenaze tabloları
+│   │   └── places.py             # Eczane, mekan, kamu kurumları tabloları
+│   ├── schemas/                  # Pydantic validation şemaları
+│   ├── services/
+│   │   ├── agent/                # Ajan tanımları (definitions, tools, prompt)
+│   │   ├── chunk_indexer.py      # pgvector döküman senkronizasyon servisi
+│   │   ├── chunking.py           # Anlamsal metin parçalayıcı
+│   │   ├── collectapi_client.py  # CollectAPI asenkron veri çekim botu
+│   │   ├── embedding.py          # sentence-transformers embedding servisi
+│   │   ├── llm.py                # Groq / OpenAI asenkron API wrapper
+│   │   ├── rag.py                # Çok aşamalı RAG (RRF, Rerank, Rescue)
+│   │   └── scheduler.py          # APScheduler görev zamanlayıcı servisi
+│   ├── database.py               # AsyncEngine ve get_db asenkron oturum yönetimi
+│   └── main.py                   # FastAPI uygulaması başlangıç noktası
+├── requirements.txt              # Backend kütüphane bağımlılıkları
+└── Dockerfile                    # Backend Docker derleme talimatları
+```
+</details>
+
+<details>
+<summary>📂 <b>Frontend Detaylı Klasör Ağacı</b> (Göster/Gizle)</summary>
+
+```
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── AppHeader.tsx         # Ortak uygulama başlığı (≡ ALİAĞAİ 🔔)
+│   │   ├── ChatBubble.tsx        # Tıklanabilir RAG citation butonları içeren bubble
+│   │   ├── DataStatePanel.tsx    # Hata, boş veri ve yeniden yükleme durum paneli
+│   │   ├── ExploreMap.tsx        # Harita marker çizim ve rota gösterim katmanı
+│   │   └── SearchBar.tsx         # Modern, minimalist arama çubuğu
+│   ├── context/
+│   │   ├── AuthContext.tsx       # JWT oturumu ve Google Login Context
+│   │   └── LocationContext.tsx   # GPS koordinatlarını izleyen konum Context
+│   ├── navigation/
+│   │   └── AppNavigator.tsx      # Yüzen Pill Tab Bar ve ekran stack navigasyonu
+│   ├── screens/
+│   │   ├── HomeScreen.tsx        # Ana ekran (Hava durumu, İZBAN, eczane widget'ları)
+│   │   ├── ChatScreen.tsx        # RAG Sohbet arayüzü ve öneri promptları
+│   │   ├── ExploreScreen.tsx     # Harita destekli mekan ve rota keşfetme ekranı
+│   │   ├── DirectoryScreen.tsx   # Kategorize edilmiş taksi, kurum, hastane rehberi
+│   │   └── MunicipalityScreen.tsx# Belediye haberleri, projeleri ve iş ilanları
+│   ├── services/
+│   │   └── api.ts                # Axios backend API istemcisi
+│   ├── theme/
+│   │   └── index.ts              # Renk, boşluk, yazı tipi ve harita stil şeması
+│   ├── types/
+│   │   └── index.ts              # TypeScript arayüz tip tanımları
+│   └── utils/
+│       ├── alert.ts              # Platform uyumlu özelleştirilmiş alert
+│       ├── dataState.ts          # API loading ve refresh yardımcı durum yöneticisi
+│       └── externalActions.ts    # Yol tarifi, arama ve tarayıcı açma aksiyonları
+├── App.tsx                       # Fontların yüklendiği ana Expo bileşeni
+├── package.json                  # Frontend kütüphane bağımlılıkları
+└── Dockerfile                    # Frontend Docker derleme talimatları
+```
+</details>
+
+---
+
+## ⚙️ Kurulum ve Çalıştırma
+
+### A. 🐳 Docker Compose ile Hızlı Başlangıç
+
+Sistemde Docker kuruluysa tek bir komutla tüm uygulamayı çalıştırabilirsiniz.
+
+1.  Kök dizindeki `.env.example` dosyasını `.env` aduyla kopyalayın:
+    ```bash
+    cp .env.example .env
+    ```
+2.  `.env` dosyasını açıp API anahtarlarınızı doldurun:
+    ```ini
+    GROQ_API_KEY=gsk_...
+    COLLECTAPI_KEY=apikey ...
+    ```
+3.  Container'ları derleyip çalıştırın:
+    ```bash
+    docker compose up --build
+    ```
+
+---
+
+### B. 🔧 Lokal Geliştirme Ortamı (Manuel Kurulum)
+
+#### 1. Backend Kurulumu
+1.  `backend` dizinine geçin ve sanal ortam oluşturup aktif edin:
+    ```bash
+    cd backend
+    python -m venv venv
+    venv\Scripts\activate      # Windows
+    source venv/bin/activate    # macOS/Linux
+    ```
+2.  Bağımlılıkları yükleyin:
+    ```bash
+    pip install -r requirements.txt
+    ```
+3.  PostgreSQL veritabanınızı oluşturup `.env` içindeki `DATABASE_URL` değerini güncelleyin.
+4.  Tabloları oluşturmak için Alembic göçlerini uygulayın:
+    ```bash
+    alembic upgrade head
+    ```
+5.  Başlangıç verilerini veritabanına yükleyin:
+    ```bash
+    python scripts/reseed_db.py
+    ```
+6.  FastAPI sunucusunu başlatın:
+    ```bash
+    uvicorn app.main:app --reload --port 8000
+    ```
+
+#### 2. Frontend Kurulumu
+1.  `frontend` dizinine geçip bağımlılıkları yükleyin:
+    ```bash
+    cd ../frontend
+    npm install
+    ```
+2.  Geliştirme sunucusunu başlatın:
+    ```bash
+    npx expo start --web
+    ```
+
+---
+
+## 🔌 API Dokümantasyonu
+
+### 📍 1. Sohbet Asistanı (`POST /api/v1/chat`)
+
+<details>
+<summary><b>İstek (Request Body) Örneği</b></summary>
+
+```json
+{
+  "message": "Bugün Aliağa'da nöbetçi eczane hangisi?",
+  "conversation_history": []
+}
+```
+</details>
+
+<details>
+<summary><b>Yanıt (Response Body) Örneği</b></summary>
+
+```json
+{
+  "answer": "Bugün Aliağa'da nöbetçi olan eczaneler şunlardır: \n• Şifa Eczanesi (İstiklal Cad. No:42, Tel: 0232 616 11 22) [S1]",
+  "intent": "pharmacy",
+  "search_method": "sql",
+  "sources": [
+    {
+      "type": "pharmacy",
+      "title": "Nöbetçi Eczaneler"
+    }
+  ],
+  "response_policy": "agentic_grounded",
+  "confidence": 0.85,
+  "follow_up_suggestions": [
+    "Eczanenin yol tarifini alabilir miyim?",
+    "Yarın hangi eczaneler nöbetçi?"
+  ]
+}
+```
+</details>
+
+### 📍 2. Nöbetçi Eczaneler (`GET /api/v1/pharmacies/duty`)
+### 📍 3. İZBAN Saatleri (`GET /api/v1/city/izban`)
+### 📍 4. Kesintiler (`GET /api/v1/city/outages`)
+
+---
+
+## 👥 Geliştirici
+
+**Duran Gezer**  
+Bu proje, İnönü Üniversitesi Mühendislik Fakültesi Bilgisayar Mühendisliği Bölümü bitirme projesi olarak tasarlanmış ve geliştirilmiştir.
 
 ---
 
 ## 📄 Lisans
 
-Bu proje tüm hakları saklı olarak geliştirilmiştir. İzinsiz kopyalanması, dağıtılması veya ticari kullanımı yasaktır.
+Bu projenin tüm hakları saklıdır. Eğitim ve akademik değerlendirme amaçları dışında izinsiz kopyalanması, dağıtılması ve ticari kullanımı yasaktır.
