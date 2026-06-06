@@ -9,15 +9,23 @@ Bu modül RAG veri kalitesini merkezi olarak yönetir:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any, Callable
 
 from loguru import logger
-from sqlalchemy import delete, select, func
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.models.city import CityKnowledge, DocumentChunk, FerrySchedule, IzbanSchedule, UtilityOutage
+from app.models.city import (
+    CityKnowledge,
+    DocumentChunk,
+    FerrySchedule,
+    IzbanSchedule,
+    UtilityOutage,
+    TaxiStand,
+    PostalCode,
+)
 from app.models.content import Announcement, Event, JobListing, News, Obituary, Project
 from app.models.knowledge_layers import (
     DistrictStat,
@@ -27,7 +35,7 @@ from app.models.knowledge_layers import (
     TransportRoute,
     TransportStop,
 )
-from app.models.places import Institution, Place
+from app.models.places import Institution, Place, ServiceProvider
 from app.services.chunking import build_text, chunk_text, content_hash
 from app.services.embedding import generate_embedding
 
@@ -82,6 +90,20 @@ def _place_text(row: Place) -> str:
 
 def _institution_text(row: Institution) -> str:
     return build_text([row.name, row.category, row.subcategory, row.description, row.address, row.phone, row.website, row.working_hours])
+
+
+def _service_provider_text(row: ServiceProvider) -> str:
+    working = "24 saat hizmet" if row.is_24h else None
+    return build_text([
+        row.name,
+        row.category,
+        row.description,
+        row.address,
+        row.neighborhood,
+        f"Telefon: {row.phone}" if row.phone else None,
+        working,
+        "Aliağa yerel hizmet sağlayıcı rehberi",
+    ])
 
 
 def _outage_text(row: UtilityOutage) -> str:
@@ -160,6 +182,26 @@ def _ferry_schedule_text(row: FerrySchedule) -> str:
     ])
 
 
+def _taxi_stand_text(row: TaxiStand) -> str:
+    working = "24 saat açık" if row.is_24h else "mesai saatleri"
+    return build_text([
+        "Taksi Durağı", row.name,
+        f"Telefon: {row.phone}" if row.phone else None,
+        f"Adres: {row.address}" if row.address else None,
+        working,
+        "Aliağa taksi durakları telefon numaraları ulaşım",
+    ])
+
+
+def _postal_code_text(row: PostalCode) -> str:
+    return build_text([
+        f"Posta Kodu: {row.postal_code}",
+        f"Mahalle: {row.neighborhood}",
+        f"İlçe: {row.district}",
+        "Aliağa posta kodları adres bilgileri",
+    ])
+
+
 SOURCE_CONFIGS: dict[str, SourceIndexerConfig] = {
     "news": SourceIndexerConfig(
         source_type="news",
@@ -186,11 +228,6 @@ SOURCE_CONFIGS: dict[str, SourceIndexerConfig] = {
             "category": row.category,
             "location": row.location,
         },
-        is_active=lambda row: row.event_date is None or (
-            isinstance(row.event_date, datetime) and row.event_date.date() >= datetime.now().date() - timedelta(days=3)
-        ) or (
-            isinstance(row.event_date, date) and not isinstance(row.event_date, datetime) and row.event_date >= datetime.now().date() - timedelta(days=3)
-        ),
         min_chunk_length=40,
     ),
     "announcement": SourceIndexerConfig(
@@ -204,9 +241,6 @@ SOURCE_CONFIGS: dict[str, SourceIndexerConfig] = {
             "date": _to_iso(row.published_at),
             "announcement_type": row.type,
         },
-        is_active=lambda row: row.published_at is None or (
-            isinstance(row.published_at, datetime) and row.published_at.date() >= datetime.now().date() - timedelta(days=30)
-        ),
         min_chunk_length=40,
     ),
     "project": SourceIndexerConfig(
@@ -250,6 +284,7 @@ SOURCE_CONFIGS: dict[str, SourceIndexerConfig] = {
             "address": row.address,
         },
         is_active=lambda row: bool(row.is_active),
+        min_chunk_length=10,
     ),
     "institution": SourceIndexerConfig(
         source_type="institution",
@@ -263,7 +298,23 @@ SOURCE_CONFIGS: dict[str, SourceIndexerConfig] = {
             "address": row.address,
         },
         is_active=lambda row: bool(row.is_active),
-        min_chunk_length=20,
+        min_chunk_length=10,
+    ),
+    "service_provider": SourceIndexerConfig(
+        source_type="service_provider",
+        model=ServiceProvider,
+        id_attr="id",
+        text_builder=_service_provider_text,
+        metadata_builder=lambda row: {
+            "title": row.name,
+            "category": row.category,
+            "phone": row.phone,
+            "address": row.address,
+            "neighborhood": row.neighborhood,
+            "is_24h": bool(row.is_24h),
+        },
+        is_active=lambda row: bool(row.is_active),
+        min_chunk_length=15,
     ),
     "outage": SourceIndexerConfig(
         source_type="outage",
@@ -422,6 +473,32 @@ SOURCE_CONFIGS: dict[str, SourceIndexerConfig] = {
         },
         min_chunk_length=10,
     ),
+    "taxi_stand": SourceIndexerConfig(
+        source_type="taxi_stand",
+        model=TaxiStand,
+        id_attr="id",
+        text_builder=_taxi_stand_text,
+        metadata_builder=lambda row: {
+            "title": row.name,
+            "phone": row.phone,
+            "address": row.address,
+            "is_24h": bool(row.is_24h),
+        },
+        min_chunk_length=10,
+    ),
+    "postal_code": SourceIndexerConfig(
+        source_type="postal_code",
+        model=PostalCode,
+        id_attr="id",
+        text_builder=_postal_code_text,
+        metadata_builder=lambda row: {
+            "title": f"{row.neighborhood} Posta Kodu",
+            "postal_code": row.postal_code,
+            "neighborhood": row.neighborhood,
+            "district": row.district,
+        },
+        min_chunk_length=10,
+    ),
 }
 
 
@@ -430,12 +507,21 @@ async def _fetch_existing_head(
     source_type: str,
     source_id: int,
 ) -> DocumentChunk | None:
+    return await _fetch_existing_chunk(session, source_type, source_id, 0)
+
+
+async def _fetch_existing_chunk(
+    session: AsyncSession,
+    source_type: str,
+    source_id: int,
+    chunk_index: int,
+) -> DocumentChunk | None:
     stmt = (
         select(DocumentChunk)
         .where(
             DocumentChunk.source_type == source_type,
             DocumentChunk.source_id == source_id,
-            DocumentChunk.chunk_index == 0,
+            DocumentChunk.chunk_index == chunk_index,
         )
         .limit(1)
     )
@@ -493,10 +579,8 @@ async def _index_record(
     ):
         return 0, True
 
-    # UPSERT mantığı: Mevcut chunk'ları tamamen silmek yerine, çakışanları güncelle (UPSERT),
-    # ardından artık kalan (stale) chunk'ları sil.
-    from sqlalchemy.dialects.postgresql import insert as pg_insert
-
+    # Eski veritabanlarinda unique constraint eksik olabildigi icin constraint adina bagli upsert kullanmiyoruz.
+    # Her chunk'i mevcutsa guncelleyip yoksa ekliyoruz, sonra stale chunk'lari temizliyoruz.
     chunks = chunk_text(
         text,
         chunk_size=settings.CHUNK_SIZE,
@@ -517,32 +601,30 @@ async def _index_record(
             )
             continue
 
-        stmt = pg_insert(DocumentChunk).values(
-            source_type=config.source_type,
-            source_id=source_id,
-            chunk_index=chunk_index,
-            content=chunk,
-            embedding=embedding,
-            metadata_json={
-                **base_meta,
-                "content_hash": record_hash,
-                "embedding_model": settings.EMBEDDING_MODEL,
-                "chunk_index": chunk_index,
-                "total_chunks": len(chunks),
-            },
-        )
-        
-        stmt = stmt.on_conflict_do_update(
-            constraint="uix_source_chunk",
-            set_={
-                "content": stmt.excluded.content,
-                "embedding": stmt.excluded.embedding,
-                "metadata_json": stmt.excluded.metadata_json,
-                "created_at": func.now(),
-            }
-        )
-        
-        await session.execute(stmt)
+        metadata = {
+            **base_meta,
+            "content_hash": record_hash,
+            "embedding_model": settings.EMBEDDING_MODEL,
+            "chunk_index": chunk_index,
+            "total_chunks": len(chunks),
+        }
+        existing_chunk = await _fetch_existing_chunk(session, config.source_type, source_id, chunk_index)
+        if existing_chunk:
+            existing_chunk.content = chunk
+            existing_chunk.embedding = embedding
+            existing_chunk.metadata_json = metadata
+            existing_chunk.created_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        else:
+            session.add(
+                DocumentChunk(
+                    source_type=config.source_type,
+                    source_id=source_id,
+                    chunk_index=chunk_index,
+                    content=chunk,
+                    embedding=embedding,
+                    metadata_json=metadata,
+                )
+            )
         inserted += 1
 
     # Eğer yeni chunk sayısı eski olandan az ise, artık kalan chunkları temizle

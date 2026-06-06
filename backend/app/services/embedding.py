@@ -10,7 +10,7 @@ from threading import Lock
 from loguru import logger
 from app.core.config import settings
 
-# SentenceTransformers kütüphanesi ağır olduğu için ilk importta global olarak yüklüyoruz.
+
 _embedding_model = None
 _embedding_load_failed_at = None
 _embedding_load_error = None

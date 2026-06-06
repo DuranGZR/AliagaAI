@@ -29,7 +29,7 @@ except ImportError:
     HAS_VECTOR = False
 
 
-_TOKEN_RE = re.compile(r"[a-zA-Z0-9çğıöşüÇĞİÖŞÜ]{2,}", re.UNICODE)
+_TOKEN_RE = re.compile(r"[\w]{2,}", re.UNICODE)
 _LAST_ERROR_SIGNATURE = ""
 _LAST_ERROR_AT = 0.0
 _STOPWORDS = {
@@ -70,6 +70,19 @@ _TAXONOMY_HINTS = {
 }
 
 
+_TRANSPORT_TOKENS = {"izban", "otobus", "sefer", "saat", "durak", "ulasim", "feribot", "vapur"}
+_PLACE_TOKENS = {"restoran", "lokanta", "kafe", "cafe", "yemek", "turistik", "gezi", "plaj", "sahil", "park", "tesis"}
+_INSTITUTION_TOKENS = {
+    "kurum", "mudurluk", "mudurlugu", "kaymakam", "hastane", "okul", "lise",
+    "universite", "egitim", "saglik", "kargo", "ptt", "kutuphane", "kultur",
+}
+_NEWS_TOKENS = {"haber", "haberi", "gundem", "ozet"}
+_ANNOUNCEMENT_TOKENS = {"duyuru", "ihale", "ilan", "personel", "basvuru"}
+_PROJECT_TOKENS = {"proje", "projesi", "durum", "durumu"}
+_MUNICIPAL_SERVICE_TOKENS = {"belediye", "hizmet", "ruhsat", "basvuru", "talep"}
+_DISTRICT_STAT_TOKENS = {"nufus", "mahalle", "istatistik", "demografi"}
+
+
 def _tokenize(text: str) -> set[str]:
     return {t.lower() for t in _TOKEN_RE.findall(text or "")}
 
@@ -82,6 +95,64 @@ def _strip_diacritics(text: str) -> str:
 def _looks_taxonomy_query(query: str) -> bool:
     tokens = _tokenize(query)
     return any(token in _TAXONOMY_HINTS for token in tokens)
+
+
+def _normalized_tokens(query: str) -> set[str]:
+    return _tokenize(_strip_diacritics((query or "").lower()))
+
+
+def _source_type_boost(query: str, source_type: str) -> float:
+    tokens = _normalized_tokens(query)
+    if not tokens:
+        return 1.0
+
+    boost = 1.0
+    if source_type == "transport_departure" and not tokens.intersection(_TRANSPORT_TOKENS):
+        boost *= 0.72
+    if source_type == "transport_stop" and not tokens.intersection(_TRANSPORT_TOKENS):
+        boost *= 0.82
+    if source_type == "district_stat" and not tokens.intersection(_DISTRICT_STAT_TOKENS):
+        boost *= 0.78
+    if source_type == "municipal_service" and not tokens.intersection(_MUNICIPAL_SERVICE_TOKENS):
+        boost *= 0.82
+
+    if tokens.intersection(_PROJECT_TOKENS):
+        if source_type == "project":
+            boost *= 1.55
+        elif source_type in {"announcement", "place", "district_stat", "municipal_service", "transport_departure", "transport_stop"}:
+            boost *= 0.72
+        elif source_type in {"city_knowledge", "city_info", "news"}:
+            boost *= 0.90
+
+    if tokens.intersection(_NEWS_TOKENS):
+        if source_type == "news":
+            boost *= 1.35
+        elif source_type in {"district_stat", "municipal_service", "transport_departure", "transport_stop"}:
+            boost *= 0.75
+
+    if tokens.intersection(_ANNOUNCEMENT_TOKENS):
+        if source_type == "announcement":
+            boost *= 1.35
+        elif source_type in {"district_stat", "transport_departure", "transport_stop"}:
+            boost *= 0.78
+
+    if tokens.intersection(_PLACE_TOKENS):
+        if source_type == "place":
+            boost *= 1.30
+        elif source_type == "poi_catalog":
+            boost *= 1.05
+        elif source_type in {"district_stat", "municipal_service", "transport_departure", "transport_stop", "announcement"}:
+            boost *= 0.78
+
+    if tokens.intersection(_INSTITUTION_TOKENS) or "nerede" in tokens:
+        if source_type == "institution":
+            boost *= 1.25
+        elif source_type == "place":
+            boost *= 1.08
+        elif source_type in {"district_stat", "municipal_service", "transport_departure", "transport_stop", "announcement"}:
+            boost *= 0.80
+
+    return boost
 
 
 def _build_query_variants(query: str, is_factual: bool = False) -> list[str]:
@@ -318,8 +389,10 @@ async def search_similar_chunks(
                 (settings.RAG_VECTOR_WEIGHT * similarity)
                 + (settings.RAG_LEXICAL_WEIGHT * lexical_score)
             )
+            source_boost = _source_type_boost(query, candidate["source_type"])
             candidate["lexical_score"] = lexical_score
-            candidate["fusion_score"] = fusion_score
+            candidate["source_boost"] = source_boost
+            candidate["fusion_score"] = fusion_score * source_boost
 
             lexical_rescue = lexical_rescue_enabled and lexical_score >= settings.RAG_LEXICAL_RESCUE_SCORE
             if (

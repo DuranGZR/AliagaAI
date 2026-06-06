@@ -7,8 +7,9 @@ tek bir merkezden yönetilir.
 from __future__ import annotations
 
 import hashlib
+import json
 import re
-from typing import Iterable
+from typing import Any, Iterable
 
 from app.core.config import settings
 
@@ -24,9 +25,21 @@ def normalize_text(text: str | None) -> str:
     return _WHITESPACE_RE.sub(" ", text).strip()
 
 
-def build_text(parts: Iterable[str | None]) -> str:
+def _stringify_part(part: Any) -> str:
+    if part is None:
+        return ""
+    if isinstance(part, str):
+        return part
+    if isinstance(part, (list, tuple, set)):
+        return " ".join(_stringify_part(item) for item in part if item)
+    if isinstance(part, dict):
+        return json.dumps(part, ensure_ascii=False, sort_keys=True)
+    return str(part)
+
+
+def build_text(parts: Iterable[Any]) -> str:
     """Parça metinleri birleştirir ve normalize eder."""
-    return normalize_text(" ".join(p for p in parts if p))
+    return normalize_text(" ".join(text for text in (_stringify_part(p) for p in parts) if text))
 
 
 def content_hash(text: str) -> str:
