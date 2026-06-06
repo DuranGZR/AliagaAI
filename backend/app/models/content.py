@@ -6,8 +6,8 @@ pgvector document_chunks tablosuna chunk olarak işlenecek (SQL + RAG hibrit).
 """
 from datetime import date, datetime
 
-from sqlalchemy import Boolean, Date, Float, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Boolean, Date, Float, Index, Integer, String, Text, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.database import Base
@@ -124,3 +124,49 @@ class Obituary(Base):
     created_at: Mapped[datetime] = mapped_column(
         default=func.now(), server_default=func.now()
     )
+
+
+# ═════════════════════════════════════════════
+# GALERİ
+# ═════════════════════════════════════════════
+class Gallery(Base):
+    __tablename__ = "galleries"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String(500), nullable=False)
+    slug: Mapped[str | None] = mapped_column(String(500))
+    cover_image_url: Mapped[str | None] = mapped_column(Text)
+    source_url: Mapped[str | None] = mapped_column(Text)
+    publish_date: Mapped[date | None] = mapped_column(Date)
+    created_at: Mapped[datetime] = mapped_column(
+        default=func.now(), server_default=func.now()
+    )
+    
+    images: Mapped[list["GalleryImage"]] = relationship(
+        "GalleryImage", back_populates="gallery", cascade="all, delete-orphan"
+    )
+
+
+class GalleryImage(Base):
+    __tablename__ = "gallery_images"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    gallery_id: Mapped[int] = mapped_column(ForeignKey("galleries.id", ondelete="CASCADE"))
+    image_url: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        default=func.now(), server_default=func.now()
+    )
+    
+    gallery: Mapped["Gallery"] = relationship("Gallery", back_populates="images")
+
+
+# ── Sık kullanılan performans indeksleri ────────────────────────────
+Index("idx_news_published_at", News.published_at.desc())
+Index("idx_news_category", News.category)
+Index("idx_event_date", Event.event_date)
+Index("idx_event_category", Event.category)
+Index("idx_announcement_type_date", Announcement.type, Announcement.published_at.desc())
+Index("idx_job_active_date", JobListing.is_active, JobListing.published_at.desc())
+Index("idx_gallery_publish_date", Gallery.publish_date.desc())
+Index("idx_gallery_image_gallery", GalleryImage.gallery_id)

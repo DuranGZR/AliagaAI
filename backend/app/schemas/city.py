@@ -1,5 +1,5 @@
 """Pydantic schemas for city and transport models."""
-from datetime import datetime, time
+from datetime import date, datetime, time
 from typing import Optional
 
 from pydantic import BaseModel
@@ -84,6 +84,19 @@ class UtilityOutageResponse(BaseModel):
     end_date: Optional[datetime] = None
     source: Optional[str] = None
     created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class MunicipalServiceResponse(BaseModel):
+    id: int
+    hizmet_tipi: str
+    birim: str
+    calisma_saatleri: Optional[str] = None
+    iletisim: Optional[str] = None
+    source_url: str
+    last_verified_at: Optional[date] = None
+    quality_score: float
 
     model_config = {"from_attributes": True}
 

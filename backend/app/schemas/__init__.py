@@ -22,6 +22,10 @@ from app.schemas.places import (  # noqa: F401
     InstitutionResponse,
     ServiceProviderResponse,
 )
+from app.schemas.routes import (  # noqa: F401
+    RouteResponse,
+    RouteStopResponse,
+)
 from app.schemas.city import (  # noqa: F401
     IzbanScheduleResponse,
     FerryScheduleResponse,
@@ -37,4 +41,10 @@ from app.schemas.chat import (  # noqa: F401
     ChatResponse,
     SourceReference,
 )
-
+from app.schemas.user import (  # noqa: F401
+    UserCreate,
+    UserLogin,
+    GoogleLoginRequest,
+    UserResponse,
+    TokenResponse,
+)

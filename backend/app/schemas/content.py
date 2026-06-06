@@ -97,3 +97,26 @@ class ObituaryResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+# ── Galeri ────────────────────────────────────
+class GalleryImageResponse(BaseModel):
+    id: int
+    gallery_id: int
+    image_url: str
+    description: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
+class GalleryResponse(BaseModel):
+    id: int
+    title: str
+    slug: Optional[str] = None
+    cover_image_url: Optional[str] = None
+    source_url: Optional[str] = None
+    publish_date: Optional[date] = None
+    created_at: datetime
+    images: list[GalleryImageResponse] = []
+
+    model_config = {"from_attributes": True}

@@ -6,7 +6,7 @@ pgvector document_chunks tablosuna da chunk olarak yazılabilir (hibrit arama).
 """
 from datetime import date, datetime
 
-from sqlalchemy import Boolean, Date, Float, Integer, String, Text
+from sqlalchemy import Boolean, Date, Float, Index, Integer, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -119,3 +119,14 @@ class ServiceProvider(Base):
     updated_at: Mapped[datetime] = mapped_column(
         default=func.now(), server_default=func.now(), onupdate=func.now()
     )
+
+
+# ═════════════════════════════════════════════
+# PERFORMANS INDEKSLERİ
+# ═════════════════════════════════════════════
+Index("idx_pharmacy_duty_date", Pharmacy.duty_date)
+Index("idx_pharmacy_name", Pharmacy.name)
+Index("idx_place_category_active", Place.category, Place.is_active)
+Index("idx_place_name", Place.name)
+Index("idx_institution_category_active", Institution.category, Institution.is_active)
+Index("idx_service_active_category", ServiceProvider.is_active, ServiceProvider.category)

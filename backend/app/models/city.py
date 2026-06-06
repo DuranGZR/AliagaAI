@@ -194,7 +194,7 @@ if HAS_PGVECTOR:
     Index(
         "idx_chunks_embedding",
         DocumentChunk.embedding,
-        postgresql_using="ivfflat",
+        postgresql_using="hnsw",
         postgresql_ops={"embedding": "vector_cosine_ops"},
     )
 else:

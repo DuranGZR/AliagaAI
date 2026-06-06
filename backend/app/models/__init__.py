@@ -6,12 +6,18 @@ from app.models.content import (  # noqa: F401
     Project,
     JobListing,
     Obituary,
+    Gallery,
+    GalleryImage,
 )
 from app.models.places import (  # noqa: F401
     Place,
     Institution,
     ServiceProvider,
     Pharmacy,
+)
+from app.models.routes import (  # noqa: F401
+    Route,
+    RouteStop,
 )
 from app.models.cache import (  # noqa: F401
     WeatherCache,
@@ -40,3 +46,5 @@ from app.models.knowledge_layers import (  # noqa: F401
     MunicipalService,
     DistrictStat,
 )
+from app.models.user import User  # noqa: F401
+
