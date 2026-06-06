@@ -22,10 +22,10 @@ async def reseed_database():
             session,
             source_types=[
                 "news", "event", "announcement", "project", "job",
-                "place", "institution", "outage", "obituary",
+                "place", "institution", "service_provider", "outage", "obituary",
                 "city_knowledge", "transport_route", "transport_stop",
                 "poi_catalog", "municipal_service", "district_stat",
-                "izban_schedule", "ferry_schedule",
+                "izban_schedule", "ferry_schedule", "taxi_stand", "postal_code",
             ],
         )
         print("Chunk senkronizasyon tamamlandı.")

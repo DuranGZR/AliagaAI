@@ -28,6 +28,8 @@ BASE_URL = "https://api.collectapi.com"
 TIMEOUT = 15
 PETROL_OFISI_IZMIR_URL = "https://www.petrolofisi.com.tr/akaryakit-fiyatlari/izmir-akaryakit-fiyatlari"
 IZMIR_OPENAPI_PHARMACIES_URL = "https://openapi.izmir.bel.tr/api/ibb/eczaneler"
+IZMIR_OPENAPI_DUTY_PHARMACIES_URL = "https://openapi.izmir.bel.tr/api/ibb/nobetcieczaneler"
+ALIAGA_DUTY_REGIONS = {"aliaga", "yeni sakran"}
 
 
 def _headers() -> dict:
@@ -63,48 +65,20 @@ async def _get(path: str, params: dict | None = None) -> dict | None:
 
 async def fetch_pharmacies(session: AsyncSession) -> int:
     """Aliaga nobetci eczanelerini ceker ve pharmacies tablosuna yazar."""
-    data = await _get("/health/dutyPharmacy", {"il": "Izmir", "ilce": "Aliaga"})
-
     today = date.today()
-    await session.execute(delete(Pharmacy).where(Pharmacy.duty_date == today))
-
-    pharmacy_rows: list[dict] = []
-
-    if data:
-        for item in data.get("result", []):
-            lat, lon = None, None
-            loc = item.get("loc")
-            if loc and "," in loc:
-                parts = loc.split(",")
-                try:
-                    lat, lon = float(parts[0].strip()), float(parts[1].strip())
-                except (ValueError, IndexError):
-                    pass
-
-            pharmacy_rows.append(
-                {
-                    "name": item.get("name", ""),
-                    "address": item.get("address"),
-                    "phone": item.get("phone"),
-                    "latitude": lat,
-                    "longitude": lon,
-                    "duty_date": today,
-                    "district": item.get("dist", "Aliaga"),
-                }
-            )
-
-    # CollectAPI bazen 0 kayit dondurebiliyor; bu durumda Izmir acik veri API fallback'i
-    if not pharmacy_rows:
-        pharmacy_rows = await _fetch_pharmacies_from_izmir_openapi(today=today)
-        if pharmacy_rows:
-            logger.info("Eczane verisi Izmir Acik Veri API fallback kaynagindan alindi.")
+    pharmacy_rows: list[dict] = await _fetch_duty_pharmacies_from_izmir_openapi(today)
 
     if not pharmacy_rows:
-        logger.warning("Eczane verisi alinamadi (CollectAPI + Izmir OpenAPI fallback).")
+        pharmacy_rows = await _fetch_duty_pharmacies_from_collectapi(today)
+
+    if not pharmacy_rows:
+        logger.warning("Bugunun nobetci eczane verisi resmi kaynaklardan alinamadi.")
         return 0
 
+    await session.execute(delete(Pharmacy).where(Pharmacy.duty_date == today))
+
     count = 0
-    for row in pharmacy_rows:
+    for row in _dedupe_pharmacy_rows(pharmacy_rows):
         pharmacy = Pharmacy(**row)
         session.add(pharmacy)
         count += 1
@@ -115,16 +89,124 @@ async def fetch_pharmacies(session: AsyncSession) -> int:
 
 
 def _norm_tr(text: str | None) -> str:
+    """Türkçe metni ASCII'ye indirger (karşılaştırma için normalize eder)."""
     raw = str(text or "").strip().lower()
-    raw = (
-        raw.replace("ı", "i")
-        .replace("ş", "s")
-        .replace("ğ", "g")
-        .replace("ü", "u")
-        .replace("ö", "o")
-        .replace("ç", "c")
-    )
+    # Tek geçişte tüm Türkçe karakterleri ASCII eşdeğerlerine dönüştür
+    trans_table = str.maketrans({
+        "ı": "i", "ğ": "g", "ş": "s", "ç": "c", "ö": "o", "ü": "u",
+        "İ": "i", "Ğ": "g", "Ş": "s", "Ç": "c", "Ö": "o", "Ü": "u",
+    })
+    raw = raw.translate(trans_table)
+    # Kalan combining karakterleri (aksan vb.) temizle
     return "".join(ch for ch in unicodedata.normalize("NFKD", raw) if not unicodedata.combining(ch))
+
+
+def _parse_source_date(value: str | None, fallback: date) -> date:
+    if not value:
+        return fallback
+    try:
+        return date.fromisoformat(str(value).split("T", 1)[0])
+    except ValueError:
+        return fallback
+
+
+def _is_aliaga_duty_item(item: dict) -> bool:
+    region = _norm_tr(item.get("Bolge") or item.get("dist"))
+    address = _norm_tr(item.get("Adres") or item.get("address"))
+    district = _norm_tr(item.get("district"))
+    text = f"{region} {address} {district}"
+    return any(region_name in text for region_name in ALIAGA_DUTY_REGIONS)
+
+
+def _dedupe_pharmacy_rows(rows: list[dict]) -> list[dict]:
+    unique: dict[tuple[str, str], dict] = {}
+    for row in rows:
+        key = (_norm_tr(row.get("name")), _norm_tr(row.get("address")))
+        if key == ("", ""):
+            continue
+        unique[key] = row
+    return list(unique.values())
+
+
+async def _fetch_duty_pharmacies_from_izmir_openapi(today: date) -> list[dict]:
+    try:
+        async with httpx.AsyncClient(timeout=TIMEOUT) as client:
+            resp = await client.get(IZMIR_OPENAPI_DUTY_PHARMACIES_URL)
+            resp.raise_for_status()
+            data = resp.json()
+    except Exception as e:
+        logger.warning(f"Izmir Acik Veri nobetci eczane hatasi: {e}")
+        return []
+
+    if not isinstance(data, list):
+        return []
+
+    rows: list[dict] = []
+    for item in data:
+        if not isinstance(item, dict) or not _is_aliaga_duty_item(item):
+            continue
+
+        rows.append(
+            {
+                "name": str(item.get("Adi") or "").strip(),
+                "address": str(item.get("Adres") or "").strip() or None,
+                "phone": str(item.get("Telefon") or "").strip() or None,
+                "latitude": _safe_float(item.get("LokasyonX")),
+                "longitude": _safe_float(item.get("LokasyonY")),
+                "duty_date": _parse_source_date(item.get("Tarih"), today),
+                "district": str(item.get("Bolge") or "Aliağa").strip() or "Aliağa",
+            }
+        )
+
+    if rows:
+        logger.info(f"Eczane: Izmir Acik Veri kaynagindan {len(rows)} nobetci eczane bulundu.")
+    return _dedupe_pharmacy_rows(rows)
+
+
+async def _fetch_duty_pharmacies_from_collectapi(today: date) -> list[dict]:
+    query_variants = (
+        {"il": "\u0130zmir", "ilce": "Alia\u011fa"},
+        {"il": "Izmir", "ilce": "Alia\u011fa"},
+        {"il": "\u0130zmir", "ilce": "Aliaga"},
+        {"il": "Izmir", "ilce": "Aliaga"},
+    )
+
+    for params in query_variants:
+        data = await _get("/health/dutyPharmacy", params)
+        if not data:
+            continue
+
+        rows: list[dict] = []
+        for item in data.get("result", []):
+            if not isinstance(item, dict):
+                continue
+
+            lat, lon = None, None
+            loc = item.get("loc")
+            if loc and "," in loc:
+                parts = loc.split(",")
+                try:
+                    lat, lon = float(parts[0].strip()), float(parts[1].strip())
+                except (ValueError, IndexError):
+                    pass
+
+            row = {
+                "name": item.get("name", ""),
+                "address": item.get("address"),
+                "phone": item.get("phone"),
+                "latitude": lat,
+                "longitude": lon,
+                "duty_date": today,
+                "district": item.get("dist", "Aliağa"),
+            }
+            if _is_aliaga_duty_item({**item, "address": row["address"], "dist": row["district"]}):
+                rows.append(row)
+
+        if rows:
+            logger.info(f"Eczane: CollectAPI kaynagindan {len(rows)} nobetci eczane bulundu.")
+            return _dedupe_pharmacy_rows(rows)
+
+    return []
 
 
 async def _fetch_pharmacies_from_izmir_openapi(today: date) -> list[dict]:
@@ -218,12 +300,29 @@ async def fetch_prayer_times(session: AsyncSession) -> int:
     today = date.today()
     await session.execute(delete(PrayerTimesCache).where(PrayerTimesCache.date == today))
 
-    first = results[0]
-    times_data = first.get("times", [])
     time_names = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"]
-    time_values = {}
-    for i, name in enumerate(time_names):
-        time_values[name] = times_data[i] if i < len(times_data) else None
+    first = results[0]
+    times_data = first.get("times", []) if isinstance(first, dict) else []
+    if times_data:
+        time_values = {}
+        for i, name in enumerate(time_names):
+            time_values[name] = times_data[i] if i < len(times_data) else None
+    else:
+        time_values = {name: None for name in time_names}
+        vakit_map = {
+            "imsak": "fajr",
+            "gunes": "sunrise",
+            "ogle": "dhuhr",
+            "ikindi": "asr",
+            "aksam": "maghrib",
+            "yatsi": "isha",
+        }
+        for item in results:
+            if not isinstance(item, dict):
+                continue
+            field = vakit_map.get(_norm_tr(item.get("vakit")))
+            if field:
+                time_values[field] = item.get("saat")
 
     prayer = PrayerTimesCache(city="izmir", date=today, **time_values)
     session.add(prayer)
@@ -259,7 +358,7 @@ async def _fetch_fuel_prices_from_petro_ofisi() -> tuple[float | None, float | N
     Donus: (gasoline, diesel, lpg)
     """
     try:
-        async with httpx.AsyncClient(timeout=TIMEOUT, follow_redirects=True, verify=False) as client:
+        async with httpx.AsyncClient(timeout=TIMEOUT, follow_redirects=True, verify=not settings.DEBUG) as client:
             resp = await client.get(PETROL_OFISI_IZMIR_URL)
             resp.raise_for_status()
     except Exception as e:
@@ -328,7 +427,8 @@ async def fetch_fuel_prices(session: AsyncSession) -> int:
         logger.warning("Akaryakit verisi alinamadi (CollectAPI + fallback basarisiz).")
         return 0
 
-    await session.execute(delete(FuelPricesCache))
+    # Sadece İzmir kaydını sil, tüm tabloyu değil
+    await session.execute(delete(FuelPricesCache).where(FuelPricesCache.city == "izmir"))
     fuel = FuelPricesCache(city="izmir", gasoline=gasoline, diesel=diesel, lpg=lpg)
     session.add(fuel)
     await session.flush()
@@ -346,10 +446,9 @@ async def fetch_currency(session: AsyncSession) -> int:
     if not results:
         return 0
 
-    await session.execute(delete(CurrencyCache))
-
     count = 0
     target_codes = {"USD", "EUR", "GBP", "CHF", "JPY", "SAR", "CAD", "AUD"}
+    new_codes: set[str] = set()
     for item in results:
         code = (item.get("code") or "").upper()
         if code not in target_codes:
@@ -362,9 +461,15 @@ async def fetch_currency(session: AsyncSession) -> int:
             change_pct=_safe_float(item.get("rate")),
         )
         session.add(currency)
+        new_codes.add(code)
         count += 1
 
     await session.flush()
+    # Eski kayıtları temizle (yeni eklenen kodlar hariç)
+    if new_codes:
+        await session.execute(
+            delete(CurrencyCache).where(CurrencyCache.code.not_in(new_codes))
+        )
     logger.info(f"Doviz kurlari: {count} para birimi guncellendi.")
     return count
 
@@ -379,20 +484,26 @@ async def fetch_gold(session: AsyncSession) -> int:
     if not results:
         return 0
 
-    await session.execute(delete(GoldCache))
-
     count = 0
+    new_names: set[str] = set()
     for item in results:
+        name = item.get("name", "")
         gold = GoldCache(
-            name=item.get("name", ""),
+            name=name,
             buying=_safe_float(item.get("buying")),
             selling=_safe_float(item.get("selling")),
             change_pct=_safe_float(item.get("rate")),
         )
         session.add(gold)
+        new_names.add(name)
         count += 1
 
     await session.flush()
+    # Eski kayıtları temizle (yeni eklenen isimler hariç)
+    if new_names:
+        await session.execute(
+            delete(GoldCache).where(GoldCache.name.not_in(new_names))
+        )
     logger.info(f"Altin fiyatlari: {count} tur guncellendi.")
     return count
 

@@ -133,6 +133,11 @@ async def sync_street_markets(session: AsyncSession) -> int:
         if len(name) < 2:
             continue
 
+        # Helvacı duplicate filter (only keep Helvacı Kapalı Pazaryeri)
+        norm_name = _norm_tr(name)
+        if "helvaci" in norm_name and "kapali" not in norm_name:
+            continue
+
         neighborhood = (row.get("MAHALLE") or "").strip() or None
         road = (row.get("YOL") or "").strip()
         no = (row.get("KAPINO") or "").strip()

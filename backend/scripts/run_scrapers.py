@@ -91,6 +91,7 @@ async def run_all():
                     "poi_catalog",
                     "municipal_service",
                     "district_stat",
+                    "service_provider",
                 ],
             )
             logger.info(f"Knowledge layer chunk sonucu: {chunk_stats}")

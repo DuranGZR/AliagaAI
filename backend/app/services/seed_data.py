@@ -6,21 +6,37 @@ Artık veriler seed_data_massive.py dosyasından çekilmektedir.
 """
 from datetime import date
 
+from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.city import CityKnowledge, EmergencyContact, StreetMarket, PostalCode, TaxiStand
 from app.models.places import Place, Institution
 
-from app.services.seed_data_massive import (
-    EMERGENCY_CONTACTS,
-    STREET_MARKETS,
-    PLACES,
-    INSTITUTIONS,
-    TAXI_STANDS,
-    POSTAL_CODES,
-    CITY_KNOWLEDGE,
-)
+try:
+    from app.services.seed_data_massive import (
+        EMERGENCY_CONTACTS,
+        STREET_MARKETS,
+        PLACES,
+        INSTITUTIONS,
+        TAXI_STANDS,
+        POSTAL_CODES,
+        CITY_KNOWLEDGE,
+    )
+except ImportError:
+    logger.warning(
+        "seed_data_massive.py bulunamadı. Seed verileri boş listelerle devam edecek. "
+        "Veritabanı seed verisi olmadan başlatılacak."
+    )
+    EMERGENCY_CONTACTS: list[dict] = []
+    STREET_MARKETS: list[dict] = []
+    PLACES: list[dict] = []
+    INSTITUTIONS: list[dict] = []
+    TAXI_STANDS: list[dict] = []
+    POSTAL_CODES: list[dict] = []
+    CITY_KNOWLEDGE: list[dict] = []
+
+from app.services.data_completeness import ensure_core_city_data
 
 async def _insert_if_empty(session: AsyncSession, model, data_list: list[dict]):
     """Tablo boşsa verileri yükler, doluysa atlar."""
@@ -79,7 +95,7 @@ async def _sync_city_knowledge(session: AsyncSession, data_list: list[dict]) -> 
     return changes
 
 
-async def seed_all(session: AsyncSession) -> dict[str, int]:
+async def seed_all(session: AsyncSession, sync_rag_chunks: bool = True) -> dict[str, int]:
     """
     Tüm seed verileri yükler. Zaten veri olan tablolara dokunmaz.
     Dönen dict, tablo adı -> eklenen satır sayısı eşlemesidir.
@@ -99,6 +115,12 @@ async def seed_all(session: AsyncSession) -> dict[str, int]:
     results["taxi_stands"] = await _insert_if_empty(session, TaxiStand, TAXI_STANDS)
     results["postal_codes"] = await _insert_if_empty(session, PostalCode, POSTAL_CODES)
     results["city_knowledge"] = await _sync_city_knowledge(session, CITY_KNOWLEDGE)
+    completeness_results = await ensure_core_city_data(session)
+    results.update({f"complete_{key}": value for key, value in completeness_results.items()})
+
+    if not sync_rag_chunks:
+        await session.commit()
+        return results
 
     # RAG İçin Şehir Bilgilerini (Tarihçe vb.) İndir ve Vektörleştir
     try:
@@ -121,10 +143,10 @@ async def seed_all(session: AsyncSession) -> dict[str, int]:
             session,
             source_types=[
                 "news", "event", "announcement", "project", "job",
-                "place", "institution", "outage", "obituary",
+                "place", "institution", "service_provider", "outage", "obituary",
                 "city_knowledge", "transport_route", "transport_stop",
                 "poi_catalog", "municipal_service", "district_stat",
-                "izban_schedule", "ferry_schedule",
+                "izban_schedule", "ferry_schedule", "taxi_stand", "postal_code",
             ],
         )
         results["chunk_sync"] = sum(v.get("indexed", 0) for v in chunk_sync.values())

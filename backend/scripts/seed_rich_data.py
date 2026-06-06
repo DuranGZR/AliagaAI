@@ -172,7 +172,7 @@ async def main():
             "city_knowledge", "transport_route", "transport_stop",
             "poi_catalog", "municipal_service", "district_stat",
             "izban_schedule", "ferry_schedule",
-            "place", "institution", "news", "project",
+            "place", "institution", "service_provider", "news", "project", "taxi_stand", "postal_code",
         ])
         for st, counts in results.items():
             if counts.get("indexed", 0) > 0 or counts.get("unchanged", 0) > 0:

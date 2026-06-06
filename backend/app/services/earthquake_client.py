@@ -36,18 +36,22 @@ async def fetch_earthquakes(session: AsyncSession, limit: int = 30) -> int:
         logger.warning("Deprem API boş sonuç döndü.")
         return 0
 
-    # Eski verileri temizle
-    await session.execute(delete(EarthquakesCache))
-
+    # Önce yeni kayıtları ekle (flush ile görünür yap), sonra eski kayıtları temizle.
+    # Bu sayede concurrent okuyucular hiçbir zaman boş sonuç görmez.
     count = 0
     for item in results:
         try:
             event_date = None
-            date_str = item.get("date")
+            date_str = item.get("date") or item.get("date_time")
             if date_str:
                 try:
                     event_date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
                 except (ValueError, TypeError):
+                    pass
+            if event_date is None and item.get("created_at"):
+                try:
+                    event_date = datetime.fromtimestamp(float(item["created_at"]))
+                except (ValueError, TypeError, OSError):
                     pass
 
             geojson = item.get("geojson", {})
@@ -70,7 +74,14 @@ async def fetch_earthquakes(session: AsyncSession, limit: int = 30) -> int:
             logger.warning(f"Deprem verisi atlandı: {e}")
             continue
 
+    # Önce yeni kayıtları flush'la, sonra eski kayıtları temizle
     await session.flush()
+    # Eklenen kayıtların ID'lerini topla (flush sonrası ID atanır)
+    new_ids = {obj.id for obj in session.new if isinstance(obj, EarthquakesCache)}
+    if new_ids:
+        await session.execute(
+            delete(EarthquakesCache).where(EarthquakesCache.id.not_in(new_ids))
+        )
     logger.info(f"Deprem: {count} kayıt güncellendi.")
     return count
 

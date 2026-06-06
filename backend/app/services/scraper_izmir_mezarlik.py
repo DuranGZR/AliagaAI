@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.content import Obituary
+from app.core.config import settings
 
 
 TOKEN_URL = (
@@ -99,7 +100,7 @@ class IzmirMezarlikScraper:
 
     async def _get_token(self) -> str | None:
         try:
-            async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True, verify=False) as client:
+            async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True, verify=not settings.DEBUG) as client:
                 resp = await client.get(TOKEN_URL)
                 resp.raise_for_status()
                 return _extract_token(resp.text)
@@ -109,7 +110,7 @@ class IzmirMezarlikScraper:
 
     async def _fetch_day(self, token: str, target_date: date) -> list[dict]:
         try:
-            async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True, verify=False) as client:
+            async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True, verify=not settings.DEBUG) as client:
                 resp = await client.get(
                     VEFAT_URL,
                     params={"kontrol": token, "tarih": target_date.strftime("%Y-%m-%d")},
@@ -235,7 +236,7 @@ class IzmirMezarlikScraper:
         count = 0
         seen_urls: set[str] = set()
 
-        async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True, verify=False) as client:
+        async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True, verify=not settings.DEBUG) as client:
             for query in queries:
                 url = "https://news.google.com/rss/search?" + urlencode(
                     {"q": query, "hl": "tr", "gl": "TR", "ceid": "TR:tr"}

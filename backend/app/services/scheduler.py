@@ -7,10 +7,14 @@ from loguru import logger
 from app.database import async_session
 from app.services.chunk_indexer import sync_all_document_chunks
 from app.services.collectapi_client import fetch_all
+from app.services.data_completeness import ensure_core_city_data
+from app.services.city_data_ingestion import ingest_all_city_data
 from app.services.data_quality import run_data_quality_pass
 from app.services.earthquake_client import fetch_earthquakes
 from app.services.scraper_aliaga_bel import scrape_aliaga_bel_all
 from app.services.scraper_city_info import scrape_and_save_city_info
+from app.services.scraper_events import scrape_and_save_events
+from app.services.scraper_gallery import scrape_and_save_galleries
 from app.services.scraper_news import scrape_and_save_news, sync_events_from_news
 from app.services.scraper_izmir_mezarlik import scrape_izmir_mezarlik
 from app.services.scraper_izmir_open_data import sync_open_data_city_tables
@@ -25,6 +29,8 @@ async def job_collectapi():
     try:
         async with async_session() as session:
             await fetch_all(session)
+            await ensure_core_city_data(session)
+            await session.commit()
     except Exception as e:
         logger.error(f"Zamanlanmis gorev hatasi (CollectAPI): {e}")
 
@@ -33,6 +39,8 @@ async def job_earthquakes():
     try:
         async with async_session() as session:
             await fetch_earthquakes(session)
+            await ensure_core_city_data(session)
+            await session.commit()
     except Exception as e:
         logger.error(f"Zamanlanmis gorev hatasi (Deprem): {e}")
 
@@ -42,6 +50,7 @@ async def job_news():
         async with async_session() as session:
             await scrape_and_save_news(session)
             await sync_events_from_news(session)
+            await ensure_core_city_data(session)
             await sync_all_document_chunks(session, source_types=["news", "event"])
             await session.commit()
     except Exception as e:
@@ -52,8 +61,11 @@ async def job_aliaga_bel():
     try:
         async with async_session() as session:
             await scrape_aliaga_bel_all(session)
+            await scrape_and_save_events(session)
+            await scrape_and_save_galleries(session)
             await sync_open_data_city_tables(session)
             await sync_knowledge_layers(session)
+            await ensure_core_city_data(session)
             await sync_all_document_chunks(
                 session,
                 source_types=[
@@ -66,6 +78,7 @@ async def job_aliaga_bel():
                     "poi_catalog",
                     "municipal_service",
                     "district_stat",
+                    "service_provider",
                 ],
             )
             await session.commit()
@@ -79,6 +92,7 @@ async def job_obituaries_outages():
             await scrape_izmir_mezarlik(session)
             await scrape_outages(session)
             await run_data_quality_pass(session)
+            await ensure_core_city_data(session)
             await sync_all_document_chunks(session, source_types=["obituary", "outage"])
             await session.commit()
     except Exception as e:
@@ -98,6 +112,7 @@ async def job_chunk_sync():
                     "job",
                     "place",
                     "institution",
+                    "service_provider",
                     "outage",
                     "obituary",
                     "city_knowledge",
@@ -107,6 +122,10 @@ async def job_chunk_sync():
                     "poi_catalog",
                     "municipal_service",
                     "district_stat",
+                    "izban_schedule",
+                    "ferry_schedule",
+                    "taxi_stand",
+                    "postal_code",
                 ],
             )
             await session.commit()
@@ -124,6 +143,21 @@ async def job_city_info_refresh():
         logger.error(f"Zamanlanmis gorev hatasi (City info refresh): {e}")
 
 
+async def job_city_data_ingestion(*, include_osm: bool = False):
+    try:
+        async with async_session() as session:
+            stats = await ingest_all_city_data(
+                session,
+                include_osm=include_osm,
+                sync_chunks=True,
+                include_legacy_city_info_chunks=False,
+            )
+            await session.commit()
+            logger.info(f"City data ingestion tamamlandi: {stats.get('counts', {})}")
+    except Exception as e:
+        logger.error(f"Zamanlanmis gorev hatasi (City data ingestion): {e}")
+
+
 def start_scheduler():
     scheduler.add_job(job_collectapi, "interval", hours=1, id="job_collectapi", replace_existing=True)
     scheduler.add_job(job_earthquakes, "interval", minutes=15, id="job_earthquakes", replace_existing=True)
@@ -132,6 +166,22 @@ def start_scheduler():
     scheduler.add_job(job_obituaries_outages, "interval", hours=4, id="job_obituaries_outages", replace_existing=True)
     scheduler.add_job(job_chunk_sync, "interval", hours=2, id="job_chunk_sync", replace_existing=True)
     scheduler.add_job(job_city_info_refresh, "interval", hours=24, id="job_city_info_refresh", replace_existing=True)
+    scheduler.add_job(
+        job_city_data_ingestion,
+        "interval",
+        hours=12,
+        id="job_city_data_ingestion",
+        replace_existing=True,
+        kwargs={"include_osm": False},
+    )
+    scheduler.add_job(
+        job_city_data_ingestion,
+        "interval",
+        hours=168,
+        id="job_city_data_ingestion_osm",
+        replace_existing=True,
+        kwargs={"include_osm": True},
+    )
 
     scheduler.start()
     logger.info("APScheduler baslatildi ve periyodik gorevler eklendi.")

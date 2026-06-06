@@ -4,7 +4,7 @@ import csv
 import io
 import json
 import unicodedata
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timezone
 
 import httpx
 from loguru import logger
@@ -577,7 +577,7 @@ async def sync_knowledge_layers(session: AsyncSession) -> dict[str, int]:
     unlock_sql = text("SELECT pg_advisory_unlock(:lock_id)")
     await session.execute(lock_sql, {"lock_id": KNOWLEDGE_SYNC_LOCK_ID})
     try:
-        batch_id = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+        batch_id = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
         verified_at = date.today()
 
         transport_stats = await sync_transport_layers(session, batch_id=batch_id, verified_at=verified_at)
