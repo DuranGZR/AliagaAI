@@ -33,34 +33,52 @@ Uygulamanın çalışması, kullanıcının mobil arayüzdeki etkileşiminden ba
 
 ```mermaid
 graph TD
-    User([📱 Mobil Kullanıcı]) -->|1. REST İstekleri / Axios| API[⚙️ FastAPI Endpoints]
+    %% Node Definitions %%
+    User([📱 Mobil Kullanıcı Arayüzü])
+    API[⚙️ FastAPI API Gateway]
+    Pre[🧹 Metin Ön-İşleme ve Düzeltme]
+    Router{🤖 Ajanlı Sorgu Yönlendirici}
+    SQL[🗄️ İlişkisel Veritabanı - SQL]
+    pgvector[🧠 Vektör Veritabanı - pgvector]
+    Cache[🌍 Canlı Entegrasyon - CollectAPI / Kandilli]
     
-    subgraph Frontend (React Native)
-        UI[🎨 Stitch Design / Black & Gold] -->|Context / GPS / Auth| User
-        Shimmer[⏳ Shimmer placeholders / DataState] --> UI
+    Expand[🔍 Sorgu Genişletme - Expansion]
+    FTS[🔎 Kelime Tabanlı Arama - FTS]
+    RRF[📈 Reciprocal Rank Fusion]
+    Rerank[📊 Aday Döküman Yeniden Sıralama]
+    
+    LLM[🤖 LLM Yanıt Üretici - Groq / OpenAI]
+    Filter[🛡️ Atıf ve Kaynak Doğrulama]
+
+    %% Flow Connections %%
+    User -->|REST API & Axios| API
+    API -->|1. Karakter Temizliği| Pre
+    Pre -->|2. Niyet ve Bağlam Analizi| Router
+    
+    Router -->|Yapılandırılmış Arama| SQL
+    Router -->|Semantik Arama| pgvector
+    Router -->|Canlı Bilgi Sorgulama| Cache
+    
+    subgraph "Frontend Katmanı (React Native)"
+        UI[🎨 Stitch Tasarım Sistemi - Black & Gold]
+        Shimmer[⏳ Shimmer Yükleme ve Hata Paneli]
+        UI -->|GPS Konumu & JWT Auth| User
+        Shimmer -->|Asenkron Yükleme Durumu| UI
     end
     
-    subgraph Backend API & Agent
-        API -->|2. Hata Düzeltici| Pre[🧹 Preprocessor]
-        Pre -->|3. Niyet Analizi| Router{🤖 Agentic Query Router}
-        Router -->|A. SQL Arama| SQL[🗄️ SQL DB]
-        Router -->|B. Semantik Arama| pgvector[🧠 pgvector RAG]
-        Router -->|C. Harici Veri| Cache[🌍 CollectAPI / Kandilli]
+    subgraph "Çok Aşamalı RAG Hattı (Retrieval Pipeline)"
+        pgvector -->|3a. Varyant Üretimi| Expand
+        Expand -->|3b. Semantik Eşleşme| FTS
+        FTS -->|3c. Sıralama Birleştirme| RRF
+        RRF -->|3d. Dinamik Eşik ve Rescue| Rerank
     end
     
-    subgraph RAG Pipeline
-        pgvector -->|Semantik Varyantlar| Expand[🔍 Query Expansion]
-        Expand -->|Hibrit Arama| FTS[🔎 PostgreSQL FTS]
-        FTS -->|Birleştirme| RRF[📈 Reciprocal Rank Fusion]
-        RRF -->|Yeniden Sıralama| Rerank[📊 Rerank candidates]
-    end
+    SQL -->|Doğrulanmış Ham Veriler| LLM
+    Rerank -->|Alakalı Bilgi Parçaları| LLM
+    Cache -->|Güncel Harici JSON| LLM
     
-    Rerank -->|Doğrulanmış Bağlam Chunks| LLM[🤖 LLM Generator]
-    SQL -->|Yapılandırılmış Tablo Verisi| LLM
-    Cache -->|Canlı Ham Veri| LLM
-    
-    LLM -->|4. Atıf Kontrolü & Grounding| Filter[🛡️ Citation Sanitizer]
-    Filter -->|5. Formatlı JSON| User
+    LLM -->|4. Atıf Denetleme| Filter
+    Filter -->|5. Doğrulanmış Yapılandırılmış Cevap| User
 ```
 
 ---
