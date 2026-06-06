@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Linking } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 
 import { colors, spacing, typography, shadows, borderRadius } from '../theme';
 import { NewsItem } from '../types';
+import { ReliableImage } from '../components/ReliableImage';
+import { openExternalUrl } from '../utils/externalActions';
 
 export function NewsDetailScreen() {
   const navigation = useNavigation();
@@ -41,17 +43,13 @@ export function NewsDetailScreen() {
         
         {/* Header Image Area */}
         <View style={styles.imagePlaceholder}>
-          {news.image_url ? (
-            <Image
-              source={{ uri: news.image_url }}
-              style={StyleSheet.absoluteFillObject}
-              resizeMode="cover"
-            />
-          ) : (
-            <View style={styles.imageFallback}>
-              <Ionicons name="newspaper-outline" size={64} color={colors.textTertiary} />
-            </View>
-          )}
+          <ReliableImage
+            uri={news.image_url}
+            fallbackUri="https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80"
+            style={StyleSheet.absoluteFillObject}
+            resizeMode="cover"
+            label="Haber görseli"
+          />
           <LinearGradient colors={['rgba(10,15,20,0.3)', 'rgba(5,15,25,1)']} style={styles.imageOverlay} />
           
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -81,7 +79,7 @@ export function NewsDetailScreen() {
           <View style={styles.bottomBar}>
             <TouchableOpacity 
               style={styles.actionButton}
-              onPress={() => Linking.openURL(news.source_url!)}
+              onPress={() => void openExternalUrl(news.source_url)}
             >
               <Ionicons name="link-outline" size={20} color={colors.background} />
               <Text style={styles.actionButtonText}>Orijinal Kaynağa Git</Text>
