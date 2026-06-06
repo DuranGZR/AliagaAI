@@ -73,17 +73,18 @@ export const borderRadius = {
 
 export const typography = {
   // Header logo font (ALİAĞAİ başlığı)
-  logo: { fontFamily: "System", fontSize: 20, fontWeight: "700" as const, letterSpacing: 3 },
-  h1: { fontFamily: "System", fontSize: 28, fontWeight: "800" as const, lineHeight: 36, letterSpacing: -0.5 },
-  h2: { fontFamily: "System", fontSize: 22, fontWeight: "700" as const, lineHeight: 28, letterSpacing: -0.3 },
-  h3: { fontFamily: "System", fontSize: 18, fontWeight: "600" as const, lineHeight: 24, letterSpacing: -0.2 },
-  body: { fontFamily: "System", fontSize: 16, fontWeight: "400" as const, lineHeight: 24, letterSpacing: 0.2 },
-  bodyMedium: { fontFamily: "System", fontSize: 16, fontWeight: "500" as const, lineHeight: 24, letterSpacing: 0.2 },
-  bodySmall: { fontFamily: "System", fontSize: 14, fontWeight: "400" as const, lineHeight: 20, letterSpacing: 0.1 },
-  caption: { fontFamily: "System", fontSize: 12, fontWeight: "600" as const, lineHeight: 16, letterSpacing: 0.5, textTransform: "uppercase" as const },
-  captionSmall: { fontFamily: "System", fontSize: 10, fontWeight: "600" as const, lineHeight: 14, letterSpacing: 0.3 },
-  button: { fontFamily: "System", fontSize: 16, fontWeight: "700" as const, lineHeight: 24, letterSpacing: 0.3 },
-  date: { fontFamily: "System", fontSize: 26, fontWeight: "700" as const, lineHeight: 32, letterSpacing: -0.3 },
+  logo: { fontFamily: "Outfit_700Bold", fontSize: 20, letterSpacing: 3 },
+  h1: { fontFamily: "Outfit_800ExtraBold", fontSize: 28, lineHeight: 36, letterSpacing: -0.5 },
+  h2: { fontFamily: "Outfit_700Bold", fontSize: 22, lineHeight: 28, letterSpacing: -0.3 },
+  h3: { fontFamily: "Outfit_600SemiBold", fontSize: 18, lineHeight: 24, letterSpacing: -0.2 },
+  body: { fontFamily: "PlusJakartaSans_400Regular", fontSize: 16, lineHeight: 24, letterSpacing: 0.2 },
+  bodyMedium: { fontFamily: "PlusJakartaSans_500Medium", fontSize: 16, lineHeight: 24, letterSpacing: 0.2 },
+  bodySmall: { fontFamily: "PlusJakartaSans_400Regular", fontSize: 14, lineHeight: 20, letterSpacing: 0.1 },
+  caption: { fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 12, lineHeight: 16, letterSpacing: 0.5, textTransform: "uppercase" as const },
+  captionSmall: { fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 10, lineHeight: 14, letterSpacing: 0.3 },
+  button: { fontFamily: "PlusJakartaSans_700Bold", fontSize: 16, lineHeight: 24, letterSpacing: 0.3 },
+  date: { fontFamily: "Outfit_700Bold", fontSize: 22, lineHeight: 28, letterSpacing: -0.3 },
+  subtitle: { fontFamily: "Outfit_600SemiBold", fontSize: 14, lineHeight: 20, letterSpacing: -0.1 },
 } as const;
 
 export const shadows = {
@@ -116,3 +117,42 @@ export const shadows = {
     elevation: 8,
   }
 } as const;
+
+// Google Maps karanlık tema — Black & Gold uyumlu
+export const darkMapStyle = [
+  { elementType: "geometry", stylers: [{ color: "#141414" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#C8A96E" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#0A0A0A" }] },
+  { elementType: "labels.icon", stylers: [{ saturation: -100 }, { lightness: -40 }] },
+  { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#C8A96E" }, { weight: 0.6 }] },
+  { featureType: "administrative.land_parcel", elementType: "geometry.stroke", stylers: [{ color: "#C8A96E" }, { weight: 0.3 }] },
+  { featureType: "poi", elementType: "geometry", stylers: [{ color: "#1a1a1a" }] },
+  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#8B9A7E" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#1e1e1e" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#C8A96E" }] },
+  { featureType: "road.highway", elementType: "geometry.fill", stylers: [{ color: "#2a2a2a" }] },
+  { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#C8A96E" }, { weight: 0.4 }] },
+  { featureType: "road.arterial", elementType: "labels.text.fill", stylers: [{ color: "#D4B980" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0a1628" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#5B9BD5" }] },
+  { featureType: "transit", elementType: "geometry", stylers: [{ color: "#1a1a1a" }] },
+  { featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#C8A96E" }] },
+];
+
+// Kategoriye göre marker rengi
+export const markerColors: Record<string, string> = {
+  history: "#C8A96E",
+  food: "#F5A623",
+  coast: "#5B9BD5",
+  park: "#4CAF50",
+  culture: "#D4B980",
+  default: "#C8A96E",
+};
+
+// Aliağa merkez koordinatı
+export const ALIAGA_CENTER = {
+  latitude: 38.7950,
+  longitude: 26.9760,
+  latitudeDelta: 0.12,
+  longitudeDelta: 0.12,
+};

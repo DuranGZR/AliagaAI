@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { BlurView } from "expo-blur";
 import { colors, spacing, typography } from "../theme";
 
 interface AppHeaderProps {
@@ -11,8 +12,8 @@ interface AppHeaderProps {
 export function AppHeader({ onNotificationPress }: AppHeaderProps) {
   const navigation = useNavigation<any>();
 
-  return (
-    <View style={styles.container}>
+  const content = (
+    <>
       <TouchableOpacity
         style={styles.iconButton}
         onPress={() => navigation.navigate("SettingsProfile")}
@@ -21,7 +22,11 @@ export function AppHeader({ onNotificationPress }: AppHeaderProps) {
         <Ionicons name="menu" size={22} color={colors.textSecondary} />
       </TouchableOpacity>
 
-      <Text style={styles.logo}>ALİAĞAİ</Text>
+      <Image
+        source={require("../../assets/logo.png")}
+        style={styles.logoImage}
+        resizeMode="contain"
+      />
 
       <TouchableOpacity
         style={styles.iconButton}
@@ -31,12 +36,27 @@ export function AppHeader({ onNotificationPress }: AppHeaderProps) {
         <Ionicons name="notifications" size={20} color={colors.textSecondary} />
         <View style={styles.dot} />
       </TouchableOpacity>
-    </View>
+    </>
+  );
+
+  if (Platform.OS === "web") {
+    return <View style={styles.container}>{content}</View>;
+  }
+
+  return (
+    <BlurView intensity={60} tint="dark" style={styles.blurContainer}>
+      <View style={styles.innerRow}>{content}</View>
+    </BlurView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -44,6 +64,31 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: colors.borderLight,
+    backgroundColor: "rgba(10, 10, 10, 0.88)",
+    ...Platform.select({
+      web: {
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+      } as any
+    }),
+  },
+  blurContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight,
+    overflow: "hidden",
+  },
+  innerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
+    backgroundColor: "rgba(10, 10, 10, 0.55)",
   },
   iconButton: {
     width: 36,
@@ -52,10 +97,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     position: "relative",
   },
-  logo: {
-    ...typography.logo,
-    color: colors.primary,
-    textAlign: "center",
+  logoImage: {
+    width: 140,
+    height: 34,
   },
   dot: {
     position: "absolute",

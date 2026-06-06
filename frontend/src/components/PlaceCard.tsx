@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Linking } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, borderRadius, shadows, typography } from "../theme";
+import { openDirections, openPhone } from "../utils/externalActions";
 
 interface PlaceCardProps {
   name: string;
@@ -23,11 +24,11 @@ export function PlaceCard({
   maps_link,
 }: PlaceCardProps) {
   const handleCall = () => {
-    if (phone) Linking.openURL(`tel:${phone}`);
+    void openPhone(phone);
   };
 
   const handleMap = () => {
-    if (maps_link) Linking.openURL(maps_link);
+    void openDirections(`${name} ${address || "Aliağa"}`, maps_link);
   };
 
   return (
