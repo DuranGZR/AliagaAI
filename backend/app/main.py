@@ -35,7 +35,10 @@ async def lifespan(app: FastAPI):
 
     try:
         async with async_session() as session:
-            seed_results = await seed_all(session)
+            seed_results = await seed_all(
+                session,
+                sync_rag_chunks=settings.STARTUP_SEED_RAG_CHUNKS_ENABLED,
+            )
             if any(v > 0 for v in seed_results.values()):
                 logger.info(f"Seed verileri eklendi: {seed_results}")
             else:
@@ -51,6 +54,7 @@ async def lifespan(app: FastAPI):
         from app.services.scheduler import (
             job_aliaga_bel,
             job_chunk_sync,
+            job_city_data_ingestion,
             job_collectapi,
             job_earthquakes,
             job_news,
@@ -58,17 +62,31 @@ async def lifespan(app: FastAPI):
         )
 
         logger.info("Baslangic verileri asenkron olarak cekiliyor...")
-        asyncio.create_task(job_collectapi())
-        asyncio.create_task(job_earthquakes())
-        asyncio.create_task(job_news())
-        asyncio.create_task(job_aliaga_bel())
-        asyncio.create_task(job_obituaries_outages())
-        asyncio.create_task(job_chunk_sync())
+        # Task referanslarını sakla ki GC toplamasın ve "Task was destroyed" uyarısı alınmasın
+        _bg_tasks: set[asyncio.Task] = set()
+
+        def _done_callback(t: asyncio.Task) -> None:
+            _bg_tasks.discard(t)
+            if t.exception():
+                logger.error(f"Başlangıç görevi hata ile sonlandı: {t.exception()}")
+
+        for coro in [
+            job_collectapi(),
+            job_earthquakes(),
+            job_news(),
+            job_aliaga_bel(),
+            job_obituaries_outages(),
+            job_chunk_sync(),
+            job_city_data_ingestion(include_osm=False),
+        ]:
+            task = asyncio.create_task(coro)
+            _bg_tasks.add(task)
+            task.add_done_callback(_done_callback)
     else:
         logger.warning("STARTUP_BACKGROUND_JOBS_ENABLED=false -> scheduler ve startup veri gorevleri kapali.")
 
     if settings.STARTUP_EMBEDDING_WARMUP_ENABLED:
-        asyncio.create_task(warmup_embedding_model())
+        await warmup_embedding_model()
     else:
         logger.info("STARTUP_EMBEDDING_WARMUP_ENABLED=false -> embedding warmup atlandi.")
 
@@ -81,11 +99,10 @@ async def lifespan(app: FastAPI):
     logger.success("AliagaAI backend kapatildi.")
 
 
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-limiter = Limiter(key_func=get_remote_address)
+from app.core.limiter import limiter
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -100,11 +117,16 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 if settings.BACKEND_CORS_ORIGINS:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_origins=list(settings.BACKEND_CORS_ORIGINS),
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+# Production ortamında DEBUG loglarını bastır, sadece INFO+ seviyesini stdout'a yaz
+if not settings.DEBUG:
+    logger.remove()
+    logger.add(lambda msg: print(msg, end=""), level="INFO", colorize=False)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 

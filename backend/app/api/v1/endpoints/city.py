@@ -16,9 +16,12 @@ from app.models.city import (
     TaxiStand,
     UtilityOutage,
 )
+from app.models.knowledge_layers import MunicipalService
 from app.schemas.city import (
     EmergencyContactResponse,
+    IzbanScheduleResponse,
     IzbanSummaryResponse,
+    MunicipalServiceResponse,
     PostalCodeResponse,
     StreetMarketResponse,
     TaxiStandResponse,
@@ -83,6 +86,39 @@ async def get_outages(
     return result.scalars().all()
 
 
+@router.get("/municipal-services", response_model=list[MunicipalServiceResponse])
+async def get_municipal_services(
+    hizmet_tipi: str | None = None,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=200),
+    session: AsyncSession = Depends(get_db),
+):
+    stmt = select(MunicipalService)
+    if hizmet_tipi:
+        stmt = stmt.where(MunicipalService.hizmet_tipi == hizmet_tipi)
+    stmt = stmt.order_by(MunicipalService.hizmet_tipi.asc(), MunicipalService.birim.asc()).offset(skip).limit(limit)
+    result = await session.execute(stmt)
+    return result.scalars().all()
+
+
+@router.get("/izban/schedules", response_model=list[IzbanScheduleResponse])
+async def get_izban_schedules(
+    direction: str | None = None,
+    day_type: str | None = None,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(120, ge=1, le=300),
+    session: AsyncSession = Depends(get_db),
+):
+    stmt = select(IzbanSchedule)
+    if direction:
+        stmt = stmt.where(IzbanSchedule.direction == direction)
+    if day_type:
+        stmt = stmt.where(IzbanSchedule.day_type == day_type)
+    stmt = stmt.order_by(IzbanSchedule.departure_time.asc()).offset(skip).limit(limit)
+    result = await session.execute(stmt)
+    return result.scalars().all()
+
+
 @router.get("/izban/summary", response_model=IzbanSummaryResponse)
 async def get_izban_summary(session: AsyncSession = Depends(get_db)):
     rows = (await session.execute(select(IzbanSchedule).order_by(IzbanSchedule.departure_time.asc()))).scalars().all()
@@ -94,6 +130,7 @@ async def get_izban_summary(session: AsyncSession = Depends(get_db)):
             message="IZBAN verisi henuz mevcut degil.",
         )
 
+    # NOT: departure_time ve datetime.now() aynı zaman diliminde (Türkiye, UTC+3) kabul edilir
     now_time = datetime.now().time()
     next_row = next((row for row in rows if row.departure_time and row.departure_time >= now_time), None)
     if next_row and next_row.departure_time:
